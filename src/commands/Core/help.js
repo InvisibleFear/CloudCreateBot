@@ -1,8 +1,6 @@
 import {
     SlashCommandBuilder,
     ActionRowBuilder,
-    ButtonBuilder,
-    ButtonStyle,
 } from "discord.js";
 import { InteractionHelper } from '../../utils/interactionHelper.js';
 import { createEmbed } from "../../utils/embeds.js";
@@ -18,7 +16,6 @@ const __dirname = path.dirname(__filename);
 
 const CATEGORY_SELECT_ID = "help-category-select";
 const ALL_COMMANDS_ID = "help-all-commands";
-const BUG_REPORT_BUTTON_ID = "help-bug-report";
 const HELP_MENU_TIMEOUT_MS = 5 * 60 * 1000;
 
 const CATEGORY_ICONS = {
@@ -59,8 +56,8 @@ export async function createInitialHelpMenu(client) {
 
     const options = [
         {
-            label: "📋 All Commands",
-            description: "Browse every available command in a single list",
+            label: "📋 Всі команди",
+            description: "Переглянути всі доступні команди одним списком",
             value: ALL_COMMANDS_ID,
         },
         ...categoryDirs.map((category) => {
@@ -68,7 +65,7 @@ export async function createInitialHelpMenu(client) {
             const icon = CATEGORY_ICONS[categoryName] || "🔍";
             return {
                 label: `${icon} ${categoryName}`,
-                description: `View commands in the ${categoryName} category`,
+                description: `Переглянути команди категорії ${categoryName}`,
                 value: category,
             };
         }),
@@ -76,65 +73,46 @@ export async function createInitialHelpMenu(client) {
 
     const botName = client?.user?.username || "Bot";
     const embed = createEmbed({
-        title: `📖 ${botName} Help`,
-        description: 'Set up your server, pick what to enable, then browse commands below.',
+        title: `📖 ${botName} — Довідка`,
+        description: 'Налаштуй сервер, обери що увімкнути, та переглядай команди нижче.',
         color: 'primary',
         thumbnail: client.user?.displayAvatarURL?.({ size: 1024 }),
         fields: [
             {
-                name: '🚀 Getting Started',
+                name: '🚀 Початок роботи',
                 value: [
-                    '**1. Launch setup** — Run `/configwizard` to configure prefix, mod role, and logs.',
-                    '**2. Enable systems** — Use `/commands dashboard` to turn categories on or off.',                    '**3. Browse commands** — Use the menu below to view categories and commands.',
+                    '**1. Налаштування** — Запусти `/configwizard` щоб вказати префікс, роль модератора та логи.',
+                    '**2. Увімкнення систем** — Використай `/commands dashboard` щоб вмикати або вимикати категорії.',
+                    '**3. Перегляд команд** — Обери категорію в меню нижче.',
                 ].join('\n'),
                 inline: false,
             },
             {
-                name: 'ℹ️ How It Works',
+                name: 'ℹ️ Як це працює',
                 value: [
-                    '• Dashboard commands manage each feature visually',
-                    '• Settings are saved per server',
-                    '• Slash commands and prefixes both work once enabled',
+                    '• Dashboard-команди керують кожною функцією візуально',
+                    '• Налаштування зберігаються окремо для кожного сервера',
+                    '• Slash-команди та префікс працюють одночасно після активації',
                 ].join('\n'),
-                inline: false,
-            },
-            {
-                name: '\u200B',
-                value: `-# ${botName} is [open source](https://youtu.be/1jCZX8s3bJE?si=NPOYx-vxVE1I5vJK)`,
                 inline: false,
             },
         ],
     });
 
-    embed.setFooter({ 
-        text: "Made with ❤️" 
+    embed.setFooter({
+        text: "Зроблено з ❤️"
     });
     embed.setTimestamp();
 
-    const bugReportButton = new ButtonBuilder()
-        .setCustomId(BUG_REPORT_BUTTON_ID)
-        .setLabel("Report Bug")
-        .setStyle(ButtonStyle.Danger);
-
-    const supportButton = new ButtonBuilder()
-        .setLabel("Support Server")
-        .setURL("https://discord.gg/QnWNz2dKCE")
-        .setStyle(ButtonStyle.Link);
-
     const selectRow = createSelectMenu(
         CATEGORY_SELECT_ID,
-        "Select to view the commands",
+        "Обери категорію для перегляду",
         options,
     );
 
-    const buttonRow = new ActionRowBuilder().addComponents([
-        bugReportButton,
-        supportButton,
-    ]);
-
     return {
         embeds: [embed],
-        components: [buttonRow, selectRow],
+        components: [selectRow],
     };
 }
 
@@ -142,13 +120,11 @@ export default {
     slashOnly: true,
     data: new SlashCommandBuilder()
         .setName("help")
-        .setDescription("Displays the help menu with all available commands"),
+        .setDescription("Відображає меню довідки з усіма доступними командами"),
 
     async execute(interaction, guildConfig, client) {
-        
-        const { MessageFlags } = await import('discord.js');
         await InteractionHelper.safeDefer(interaction);
-        
+
         const { embeds, components } = await createInitialHelpMenu(client);
 
         await InteractionHelper.safeEditReply(interaction, {
@@ -163,8 +139,8 @@ export default {
                 }
 
                 const closedEmbed = createEmbed({
-                    title: "Help menu closed",
-                    description: "Help menu has been closed, use /help again.",
+                    title: "Довідку закрито",
+                    description: "Меню довідки закрито. Використай /help щоб відкрити знову.",
                     color: "secondary",
                 });
 
@@ -173,7 +149,7 @@ export default {
                     components: [],
                 });
             } catch (error) {
-                
+
             }
         }, HELP_MENU_TIMEOUT_MS);
     },

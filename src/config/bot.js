@@ -36,10 +36,11 @@ export const botConfig = {
       { question: "Звідки дізнався про CloudCreate?", required: false },
     ],
 
+    // Embed colors by application status.
     statusColors: {
       pending: "#FFA500",
-      approved: "#00C853",
-      denied: "#D32F2F",
+      approved: "#00FF00",
+      denied: "#FF0000",
     },
 
     // 24 години між подачами заявок
@@ -55,51 +56,51 @@ export const botConfig = {
   // =========================
   embeds: {
     colors: {
-      // Основні кольори CloudCreate
-      primary: "#B87333",   // Мідь — головний акцент
-      secondary: "#2C2C2C", // Темне залізо — фон
+      // Main brand colors.
+      primary: "#336699",
+      secondary: "#2F3136",
 
-      // Статусні кольори
-      success: "#4CAF50",
-      error: "#D32F2F",
-      warning: "#FF8F00",
-      info: "#1565C0",
+      // Standard status colors for success/error/warning/info messages.
+      success: "#57F287",
+      error: "#ED4245",
+      warning: "#FEE75C",
+      info: "#3498DB",
 
-      // Нейтральні
-      light: "#F5F0E8",     // Бежевий папір/паровий туман
-      dark: "#1A1A1A",
-      gray: "#78909C",
+      // Neutral utility colors.
+      light: "#FFFFFF",
+      dark: "#202225",
+      gray: "#99AAB5",
 
-      // Discord-палітра
+      // Discord-style palette shortcuts.
       blurple: "#5865F2",
-      green: "#4CAF50",
-      yellow: "#FFC107",
+      green: "#57F287",
+      yellow: "#FEE75C",
       fuchsia: "#EB459E",
-      red: "#D32F2F",
+      red: "#ED4245",
       black: "#000000",
 
-      // Create-специфічні кольори
+      // Feature-specific colors.
       giveaway: {
-        active: "#4CAF50",
-        ended: "#D32F2F",
+        active: "#57F287",
+        ended: "#ED4245",
       },
       ticket: {
-        open: "#4CAF50",
-        claimed: "#FF8F00",
-        closed: "#D32F2F",
-        pending: "#78909C",
+        open: "#57F287",
+        claimed: "#FAA61A",
+        closed: "#ED4245",
+        pending: "#99AAB5",
       },
-      economy: "#FFC107",     // Золоті шестерні
+      economy: "#F1C40F",
       birthday: "#E91E63",
-      moderation: "#7B1FA2",
+      moderation: "#9B59B6",
 
-      // Пріоритети тікетів
+      // Ticket priority color mapping.
       priority: {
-        none: "#78909C",
-        low: "#1565C0",
-        medium: "#2E7D32",
-        high: "#E65100",
-        urgent: "#B71C1C",
+        none: "#95A5A6",
+        low: "#3498db",
+        medium: "#2ecc71",
+        high: "#f1c40f",
+        urgent: "#e74c3c",
       },
 
       // Create тематичні

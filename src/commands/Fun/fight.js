@@ -10,11 +10,11 @@ const EMBED_DESCRIPTION_LIMIT = 4096;
 export default {
     data: new SlashCommandBuilder()
     .setName("fight")
-    .setDescription("Starts a simulated 1v1 text-based battle.")
+    .setDescription("Починає симуляцію бою 1 на 1.")
     .addUserOption((option) =>
       option
         .setName("opponent")
-        .setDescription("The user to fight.")
+        .setDescription("Супротивник, з яким ви хочете битися.")
         .setRequired(true),
     ),
   category: 'Fun',
@@ -28,16 +28,16 @@ export default {
 
       if (challenger.id === opponent.id) {
         const embed = warningEmbed(
-          `**${challenger.username}**, you can't fight yourself! That's a draw before it even starts.`,
-          "⚔️ Invalid Challenge"
+          `**${challenger.username}**, ви не можете битися самі з собою! Це нічия ще до початку.`,
+          "⚔️ Недійсний виклик"
         );
         return await InteractionHelper.safeEditReply(interaction, { embeds: [embed] });
       }
 
       if (opponent.bot) {
         const embed = warningEmbed(
-          "You can't fight bots! Challenge a real person instead.",
-          "⚔️ Invalid Opponent"
+          "Ви не можете битися з ботами! Киньте виклик реальному гравцеві.",
+          "⚔️ Недійсний супротивник"
         );
         return await InteractionHelper.safeEditReply(interaction, { embeds: [embed] });
       }
@@ -49,25 +49,25 @@ export default {
 
       const log = [];
       log.push(
-        `💥 **${challenger.username}** challenges **${opponent.username}** to a duel! (Best of ${rounds} rounds)`,
+        `💥 **${challenger.username}** викликає **${opponent.username}** на дуель! (Максимум ${rounds} раундів)`,
       );
 
       for (let i = 1; i <= rounds; i++) {
         const attacker = rand(0, 1) === 0 ? challenger : opponent;
         const target = attacker.id === challenger.id ? opponent : challenger;
         const action = [
-          "throws a wild punch",
-          "lands a critical hit",
-          "uses a weak spell",
-          "parries and counterattacks",
+          "завдає потужного удару",
+          "завдає критичного удару",
+          "використовує слабке заклинання",
+          "парує та контратакує",
         ][rand(0, 3)];
         log.push(
-          `\n**Round ${i}:** ${attacker.username} ${action} on ${target.username} for ${rand(1, damage)} damage!`,
+          `\n**Раунд ${i}:** ${attacker.username} ${action} проти ${target.username} і завдає ${rand(1, damage)} шкоди!`,
         );
       }
 
       const outcomeText = log.join("\n");
-      const winnerText = `👑 **${winner.username}** has defeated ${loser.username} and claims the victory!`;
+      const winnerText = `👑 **${winner.username}** перемагає ${loser.username} та здобуває тріумф!`;
       const fullDescription = `${outcomeText}\n\n${winnerText}`;
 
       const description = fullDescription.length <= EMBED_DESCRIPTION_LIMIT
@@ -76,7 +76,7 @@ export default {
 
       const embed = successEmbed(
         description,
-        "🏆 Duel Complete!"
+        "🏆 Дуель завершено!"
       );
 
       await InteractionHelper.safeEditReply(interaction, { embeds: [embed] });

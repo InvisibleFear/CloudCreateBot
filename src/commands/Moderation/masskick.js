@@ -3,7 +3,7 @@ import { createEmbed, successEmbed, warningEmbed } from '../../utils/embeds.js';
 import { logModerationAction } from '../../utils/moderation.js';
 import { logger } from '../../utils/logger.js';
 import { ModerationService } from '../../services/moderationService.js';
-import { TitanBotError } from '../../utils/errorHandler.js';
+import { CLoudCreateError } from '../../utils/errorHandler.js';
 
 import { InteractionHelper } from '../../utils/interactionHelper.js';
 export default {
@@ -131,7 +131,7 @@ export default {
 
                 } catch (error) {
                     logger.error(`Failed to kick user ${userId}:`, error);
-                    const reason = error instanceof TitanBotError
+                    const reason = error instanceof CLoudCreateError
                         ? (error.userMessage || error.message)
                         : (error.message || "Unknown error");
                     results.failed.push({ 

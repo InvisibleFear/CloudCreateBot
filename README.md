@@ -1,272 +1,102 @@
-# TitanBot - Ultimate Discord Bot
+# CLoudCreate — Кінцевий Discord-бот
 
-**TitanBot** is a powerful, feature-rich Discord bot designed to enhance your server experience with comprehensive moderation tools, engaging economy systems, utility features, and much more. Built with modern Discord.js v14 and PostgreSQL for optimal performance and data persistence.
+**CLoudCreate** — це потужний багатофункціональний Discord-бот, розроблений для покращення вашого сервера за допомогою комплексних інструментів модерації, цікавих систем економіки, корисних утиліт та багато іншого. Побудований на базі Discord.js v14 та PostgreSQL для оптимальної продуктивності та надійності даних.
 
-[![Support Server](https://img.shields.io/badge/-Support%20Server-%235865F2?logo=discord&logoColor=white&style=flat-square&logoWidth=20)](https://discord.gg/8kJBYhTGW9)
-[![Discord.js](https://img.shields.io/npm/v/discord.js?style=flat-square&labelColor=%23202225&color=%23202225&logo=npm&logoColor=white&logoWidth=20)](https://www.npmjs.com/package/discord.js)
-![PostgreSQL](https://img.shields.io/badge/-PostgreSQL-%23336791?logo=postgresql&logoColor=white&style=flat-square&logoWidth=20)
+## Зміст
 
-## Table of Contents
+- [Огляд функцій](#огляд-функцій)
+- [Швидке налаштування](#швидке-налаштування)
+- [Кроки для ручного встановлення](#кроки-для-ручного-встановлення)
+- [Сервер підтримки](#сервер-підтримки)
+- [Необхідні інтенси бота](#необхідні-інтенси-бота)
 
-- [Features Overview](#features-overview)
-- [Quick Setup](#quick-setup)
-- [Manual Installation Steps](#manual-installation-steps)
-- [Support Server](https://discord.gg/QnWNz2dKCE)
-- [Required Bot Intents](#bot-intents)
-- [Contributing](#contributing)
+<a name="огляд-функцій"></a>
+## Огляд функцій
 
-<a name="features-overview"></a>
-## Features Overview
+CLoudCreate пропонує повний набір інструментів для керування сервером Discord та залучення спільноти:
 
-TitanBot offers a complete suite of tools for Discord server management and community engagement:
+- **Модерація та адміністрування** — Масові дії (бан/кік), нотатки про користувачів, облік кейсів.
+- **Економічна система** — Магазин та інвентар, азартні ігри, система переказів.
+- **Розваги** — Випадкові факти, плакати розшуку, перевертання тексту.
+- **Розширена система тікетів** — Прийняття тікетів персоналом, встановлення пріоритетів, збереження історії діалогів.
+- **Статистика сервера** — Живі лічильники гравців та голосових каналів, динамічні оновлення.
+- **Ролі за реакціями** — Самостійний вибір ролей за допомогою реакцій.
+- **Система рівнів та XP** — Автоматичне нарахування XP за повідомлення, ролі за рівень, гнучке налаштування.
+- **Розіграші та події** — Підтримка кількох переможців, автоматичний вибір, система перезапуску.
+- **Система днів народження** — Відстеження дат, автоматичні привітання, підтримка часових поясів.
+- **Вітання** — Привітання нових учасників, автоматичне видання ролей при вході.
 
-<table>
-<tr>
-<td width="50%" valign="top">
+<a name="швидке-налаштування"></a>
+## Швидке налаштування
 
-### Moderation & Administration
-- **Mass Actions** - Bulk ban/kick capabilities
-- **User Notes** - Keep detailed moderation records
-- **Case Management** - View and track all mod actions
+Для встановлення та налаштування бота скористайтеся нашими інструкціями або зверніться на наш [Сервер підтримки](https://discord.gg/QnWNz2dKCE).
 
-### Economy System
-- **Shop & Inventory** - Buy and manage items
-- **Gambling** - Risk it for rewards
-- **Pay System** - Transfer money between users
+## Розгортання за допомогою Docker
 
-### Fun & Entertainment
-- **Random Facts** - Learn something new
-- **Wanted Poster** - Create fun wanted images
-- **Text Reversal** - Reverse any text
+CLoudCreate повністю контейнеризований для швидкого запуску.
 
-### Advanced Ticket System
-- **Claim & Priority** - Staff ticket management
-- **Ticket Limits** - Prevent spam
-- **Transcript System** - Save ticket history
+1. **Завантажте файли проекту:**
+   Завантажте файли бота до вашої робочої директорії.
 
-### Server Stats
-- **Member Counter** - Live member count channels
-- **Voice Counters** - Track voice stats
-- **Dynamic Updates** - Real-time channel updates
+2. **Налаштуйте змінні оточення:**
+   Створіть файл `.env` із `.env.example` та заповніть токен бота і дані PostgreSQL.
 
-### Reaction Roles
-- **Role Assignment** - Self-assignable roles
-- **Emoji Selection** - Reaction-based system
-- **Multi-role Support** - Multiple role options
-
-</td>
-<td width="50%" valign="top">
-
-### Leveling & XP System
-- **XP Tracking** - Automatic message-based XP
-- **Level Roles** - Auto-assign roles by level
-- **Custom Configuration** - Personalize leveling
-
-### Giveaways & Events
-- **Multiple Winners** - Support multi-winner giveaways
-- **Auto Picking** - Automatic winner selection
-- **Reroll System** - Pick new winners if needed
-
-### Birthday System
-- **Birthday Tracking** - Never miss a birthday
-- **Auto Announcements** - Celebrate automatically
-- **Timezone Support** - Accurate worldwide tracking
-
-### Utility Tools
-- **Report System** - Report issues to staff
-- **Todo Lists** - Personal task management
-- **First Message** - Jump to channel's first message
-
-### Welcome System
-- **Welcome Messages** - Greet new members
-- **Auto Roles** - Assign roles on join
-- **Custom Embeds** - Personalized messages
-
-</td>
-</tr>
-</table>
-
-<a name="quick-setup"></a>
-## Quick Setup (Recommended for non-coders)
-
-### Video Tutorial
-For a detailed step-by-step setup guide, watch our comprehensive video tutorial:
-[**TitanBot Setup Tutorial**](https://www.youtube.com/@TouchDisc)
-
-## Docker Deployment (Recommended)
-
-TitanBot is fully containerized for easy deployment.
-
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/codebymitch/TitanBot.git
-   cd TitanBot
-   ```
-
-2. **Configure environment variables:**
-   Create a `.env` file from `.env.example` and fill in your bot details and PostgreSQL credentials.
-
-3. **Start the containers:**
+3. **Запустіть контейнери:**
    ```bash
    docker-compose up -d
    ```
 
-This will start both the bot and a persistent PostgreSQL database.
+Це запустить і бота, і базу даних PostgreSQL.
 
-### Using GitHub Container Registry
+<a name="кроки-для-ручного-встановлення"></a>
+## Кроки для ручного встановлення
 
-The bot is automatically published to GitHub Container Registry on every push to main.
+### Вимоги
+- Node.js 18.0.0 або новішої версії
+- Сервер PostgreSQL або вбудоване сховище (пам'ять)
+- Додаток бота Discord із увімкненими інтенсами
 
-```bash
-docker pull ghcr.io/codebymitch/titanbot:main
-```
-
-<a name="manual-installation-steps"></a>
-## Manual Installation Steps
-
-### Prerequisites
-- Node.js 18.0.0 or higher
-- PostgreSQL server (recommended) or memory storage fallback
-- Discord bot application with proper intents
-
-1. **Clone the Repository**
-   ```bash
-   git clone https://github.com/codebymitch/TitanBot.git
-   cd TitanBot
-   ```
-
-2. **Install Dependencies**
+1. **Встановіть залежності**
    ```bash
    npm install
    ```
 
-3. **Configure Environment Variables**
+2. **Налаштуйте змінні оточення**
    ```bash
    cp .env.example .env
    ```
-   Edit `.env` with your configuration (only the following variables require configuration, leave remaining variables as default):
+   Відредагуйте `.env` конфігурацією вашого бота:
    ```env
-   # Discord Bot Configuration
-   DISCORD_TOKEN=your_discord_bot_token_here
-   CLIENT_ID=your_discord_client_id_here
-   GUILD_ID=your_discord_guild_id_here
+   # Конфігурація Discord бота
+   DISCORD_TOKEN=ваш_токен_бота
+   CLIENT_ID=id_клієнта_бота
+   GUILD_ID=id_сервера
 
-   # PostgreSQL Configuration (Primary Database)
-   POSTGRES_URL=postgresql://postgres:yourpassword@localhost:5432/titanbot
+   # Конфігурація PostgreSQL
    POSTGRES_HOST=localhost
    POSTGRES_PORT=5432
-   POSTGRES_DB=titanbot
+   POSTGRES_DB=cloudcreate
    POSTGRES_USER=postgres
-   POSTGRES_PASSWORD=yourpassword
+   POSTGRES_PASSWORD=ваш_пароль
    ```
 
-   Production note:
-   - `NODE_ENV=production`
-   - `LOG_LEVEL=warn` for a clean production console (critical issues + startup status)
-   - `LOG_LEVEL=info` if you want more detailed operational logs
-   - If your chosen `PORT` is already used, TitanBot automatically tries the next port(s)
-
-   Environment options reference:
-   - `NODE_ENV`: `development`, `production`, `test` (any non-`production` value is treated as non-production)
-   - `LOG_LEVEL`: `error`, `warn`, `info`, `http`, `verbose`, `debug`, `silly`
-   - Accepted aliases for `LOG_LEVEL` in this bot: `warns`, `warning`, `warnings` → `warn`
-
-   Recommended production `.env` (easy mode + default mode):
-   ```env
-   NODE_ENV=production
-   LOG_LEVEL=warn
-   WEB_HOST=0.0.0.0
-   PORT=3000
-   PORT_RETRY_ATTEMPTS=5
-   ```
-   This gives clear startup/online status messages while keeping logs simple for non-technical operators.
-   If port `3000` is busy, the bot tries the next available ports automatically (up to `PORT_RETRY_ATTEMPTS`).
-
-### Running in multiple servers (optional)
-
-Most users run TitanBot on a **single server** with `GUILD_ID` set (default tutorial setup). If you want slash commands to work in **every server** the bot is invited to, opt in with:
-
-```env
-MULTI_GUILD=true
-```
-
-Notes for multi-server mode:
-- `GUILD_ID` is not used for command registration when `MULTI_GUILD=true` (you can leave it set or remove it)
-- Global slash commands may take up to about an hour to propagate on first deploy
-- Each server still has **isolated** config, economy, tickets, leveling, and other data
-- In the [Discord Developer Portal](https://discord.com/developers/applications), ensure your bot is not restricted to a single guild if you plan to invite it elsewhere
-- Generate an OAuth2 invite URL from the [Discord Developer Portal](https://discord.com/developers/applications) (OAuth2 → URL Generator, scopes: `bot` and `applications.commands`)
-
-4. **Setup PostgreSQL Database** (Optional but recommended)
-   ```bash
-   # Create database and user
-   createdb titanbot
-   createuser titanbot
-   psql -c "ALTER USER titanbot PASSWORD 'yourpassword';"
-   psql -c "GRANT ALL PRIVILEGES ON DATABASE titanbot TO titanbot;"
-   ```
-
-5. **Test Database Connection**
-   ```bash
-   npm run test-postgres
-   ```
-
-6. **Start the Bot**
+3. **Запустіть бота**
    ```bash
    npm start
    ```
-<a name="bot-intents"></a>
 
-## Required Bot Intents
-TitanBot requires the following Discord intents:
-- **Guilds**
-- **Guild Messages**
-- **Message Content**
-- **Guild Members**
-- **Guild Message Reactions**
-- **Guild Voice States**
-- **Direct Messages**
-- **Bot**
-- **Applications.commands**
+## Необхідні інтенси бота
+CLoudCreate потребує таких інтенсів Discord:
+- Guilds
+- Guild Messages
+- Message Content
+- Guild Members
+- Guild Message Reactions
+- Guild Voice States
+- Direct Messages
 
-### Required Permissions
-- **View Channels**
-- **Send Messages**
-- **Embed Links**
-- **Attach Files**
-- **Read Message History**
-- **Manage Messages**
-- **Manage Channels**
-- **Manage Roles**
-- **Kick Members**
-- **Manage Messages**
-- **Ban Members**
-- **Moderate Members**
-- **Connect**
+## Ліцензія
 
-<a name="contributing"></a>
-## Contributing
+CLoudCreate випущений под ліцензією MIT.
 
-We welcome contributions to TitanBot! Here's how you can help:
-
-1. **Fork the repository**
-2. **Create a feature branch**
-3. **Make your changes**
-4. **Test thoroughly**
-5. **Submit a pull request**
-
-### Development Guidelines
-- Follow existing code style
-- Add proper error handling
-- Include documentation for new features
-- Test with PostgreSQL and memory storage
-
-## License
-
-TitanBot is released under the MIT License. See [LICENSE](LICENSE) for details.
-
-## Thank You
-
-Thank you for choosing TitanBot for your Discord server! We're constantly working to improve and add new features based on community feedback.
-
-*Last updated: May 2026*
+*Останнє оновлення: Червень 2026*

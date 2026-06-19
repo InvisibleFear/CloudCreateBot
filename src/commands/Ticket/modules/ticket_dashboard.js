@@ -19,7 +19,7 @@ import {
 import { InteractionHelper } from '../../../utils/interactionHelper.js';
 import { successEmbed } from '../../../utils/embeds.js';
 import { logger } from '../../../utils/logger.js';
-import { TitanBotError, ErrorTypes, replyUserError } from '../../../utils/errorHandler.js';
+import { CLoudCreateError, ErrorTypes, replyUserError } from '../../../utils/errorHandler.js';
 import { getGuildConfig } from '../../../services/guildConfig.js';
 import { getGuildConfigKey } from '../../../utils/database.js';
 import { getUserTicketCount } from '../../../services/ticket.js';
@@ -182,7 +182,7 @@ export default {
             const guildConfig = await getGuildConfig(client, guildId);
 
             if (!guildConfig.ticketPanelChannelId) {
-                throw new TitanBotError(
+                throw new CLoudCreateError(
                     'Ticket system not configured',
                     ErrorTypes.CONFIGURATION,
                     'The ticket system has not been set up yet. Run `/ticket setup` first to configure it.',
@@ -252,14 +252,14 @@ export default {
                             break;
                     }
                 } catch (error) {
-                    if (error instanceof TitanBotError) {
+                    if (error instanceof CLoudCreateError) {
                         logger.debug(`Ticket config validation error: ${error.message}`);
                     } else {
                         logger.error('Unexpected ticket config menu error:', error);
                     }
 
                     const errorMessage =
-                        error instanceof TitanBotError
+                        error instanceof CLoudCreateError
                             ? error.userMessage || 'An error occurred while processing your selection.'
                             : 'An unexpected error occurred while updating the configuration.';
 
@@ -281,13 +281,13 @@ export default {
                     }
                 } catch (error) {
                     if (error.code === 40060) return;
-                    if (error instanceof TitanBotError) {
+                    if (error instanceof CLoudCreateError) {
                         logger.debug(`Ticket config button error: ${error.message}`);
                     } else {
                         logger.error('Unexpected ticket config button error:', error);
                     }
                     const errorMessage =
-                        error instanceof TitanBotError
+                        error instanceof CLoudCreateError
                             ? error.userMessage || 'An error occurred while processing your selection.'
                             : 'An unexpected error occurred while updating the configuration.';
 
@@ -312,9 +312,9 @@ export default {
                 }
             });
         } catch (error) {
-            if (error instanceof TitanBotError) throw error;
+            if (error instanceof CLoudCreateError) throw error;
             logger.error('Unexpected error in ticket_config:', error);
-            throw new TitanBotError(
+            throw new CLoudCreateError(
                 `Ticket config failed: ${error.message}`,
                 ErrorTypes.UNKNOWN,
                 'Failed to open the ticket configuration dashboard.',

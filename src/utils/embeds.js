@@ -4,8 +4,8 @@ import { EmbedBuilder } from 'discord.js';
 import { getColor } from '../config/bot.js';
 
 const EMOJI_REGEX = /[\p{Extended_Pictographic}\uFE0F]/gu;
-const EMBED_FOOTER_SYMBOL = Symbol('titanbotFooterText');
-const EMBED_BASE_DESCRIPTION_SYMBOL = Symbol('titanbotBaseDescription');
+const EMBED_FOOTER_SYMBOL = Symbol('cloudcreateFooterText');
+const EMBED_BASE_DESCRIPTION_SYMBOL = Symbol('cloudcreateBaseDescription');
 
 function sanitizeEmbedText(text = '') {
   if (typeof text !== 'string') {

@@ -1,7 +1,7 @@
 import { SlashCommandBuilder, PermissionFlagsBits } from 'discord.js';
 import { successEmbed } from '../../utils/embeds.js';
 import { logger } from '../../utils/logger.js';
-import { TitanBotError, ErrorTypes, handleInteractionError } from '../../utils/errorHandler.js';
+import { CLoudCreateError, ErrorTypes, handleInteractionError } from '../../utils/errorHandler.js';
 import { InteractionHelper } from '../../utils/interactionHelper.js';
 import { ModerationService } from '../../services/moderationService.js';
 
@@ -52,7 +52,7 @@ export default {
 
         try {
             if (!interaction.member.permissions.has(PermissionFlagsBits.ModerateMembers)) {
-                throw new TitanBotError(
+                throw new CLoudCreateError(
                     "User lacks permission",
                     ErrorTypes.PERMISSION,
                     "You need the `Moderate Members` permission to set a timeout."
@@ -65,7 +65,7 @@ export default {
             const reason = interaction.options.getString("reason") || "No reason provided";
 
             if (!targetUser) {
-                throw new TitanBotError(
+                throw new CLoudCreateError(
                     'Missing target user',
                     ErrorTypes.USER_INPUT,
                     'You must specify a user to timeout.',
@@ -74,21 +74,21 @@ export default {
             }
 
             if (targetUser.id === interaction.user.id) {
-                throw new TitanBotError(
+                throw new CLoudCreateError(
                     "Cannot timeout self",
                     ErrorTypes.VALIDATION,
                     "You cannot timeout yourself."
                 );
             }
             if (targetUser.id === client.user.id) {
-                throw new TitanBotError(
+                throw new CLoudCreateError(
                     "Cannot timeout bot",
                     ErrorTypes.VALIDATION,
                     "You cannot timeout the bot."
                 );
             }
             if (!member) {
-                throw new TitanBotError(
+                throw new CLoudCreateError(
                     "Target not found",
                     ErrorTypes.USER_INPUT,
                     "The target user is not currently in this server."

@@ -41,26 +41,26 @@ export const helpBackButton = {
 export const helpBugReportButton = {
     name: BUG_REPORT_BUTTON_ID,
     async execute(interaction, client) {
-        const githubButton = new ButtonBuilder()
-            .setLabel('🐛 Report Bug on GitHub')
+        const supportButton = new ButtonBuilder()
+            .setLabel('💬 Сервер підтримки')
             .setStyle(ButtonStyle.Link)
-            .setURL('https://github.com/codebymitch/TitanBot/issues');
+            .setURL('https://discord.gg/QnWNz2dKCE');
 
-        const bugRow = new ActionRowBuilder().addComponents(githubButton);
+        const bugRow = new ActionRowBuilder().addComponents(supportButton);
 
         const bugReportEmbed = createEmbed({
-            title: '🐛 Bug Report',
-            description: 'Found a bug? Please report it on our GitHub Issues page!\n\n' +
-                '**When reporting a bug, please include:**\n' +
-                '• 📝 Detailed description of the issue\n' +
-                '• 📋 Steps to reproduce the problem\n' +
-                '• 📸 Screenshots if applicable\n' +
-                '• 💻 Your bot version and environment\n\n' +
-                'This helps us fix issues faster and more effectively!',
+            title: '🐛 Звіт про помилку',
+            description: 'Знайшли помилку? Будь ласка, повідомте про неї на нашому сервері підтримки!\n\n' +
+                '**При повідомленні про помилку, будь ласка, додайте:**\n' +
+                '• 📝 Детальний опис проблеми\n' +
+                '• 📋 Кроки для відтворення проблеми\n' +
+                '• 📸 Скріншоти (якщо є)\n' +
+                '• 💻 Версію вашого бота та середовище\n\n' +
+                'Це допомагає нам виправляти проблеми швидше та ефективніше!',
             color: 'error'
         });
         bugReportEmbed.setFooter({
-            text: 'TitanBot Bug Reporting System',
+            text: 'Система звітів про помилки CLoudCreate',
             iconURL: client.user.displayAvatarURL()
         });
         bugReportEmbed.setTimestamp();

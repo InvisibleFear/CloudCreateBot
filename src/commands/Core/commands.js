@@ -38,7 +38,7 @@ function buildCategoryChoices(client) {
 
 async function ensureManageGuild(interaction) {
   if (!interaction.memberPermissions?.has(PermissionFlagsBits.ManageGuild)) {
-    await replyUserError(interaction, { type: ErrorTypes.PERMISSION, message: 'You need the **Manage Server** permission to manage commands.' });
+    await replyUserError(interaction, { type: ErrorTypes.PERMISSION, message: 'Вам потрібні права на **Керування сервером**, щоб керувати командами.' });
     return false;
   }
 
@@ -48,32 +48,32 @@ async function ensureManageGuild(interaction) {
 export default {
   data: new SlashCommandBuilder()
     .setName('commands')
-    .setDescription('Enable or disable bot commands and categories for this server')
+    .setDescription('Увімкнути або вимкнути команди та категорії бота для цього сервера')
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild)
     .setDMPermission(false)
     .addSubcommand((subcommand) =>
       subcommand
         .setName('dashboard')
-        .setDescription('Open the interactive command access dashboard'),
+        .setDescription('Відкрити інтерактивну панель керування доступом до команд'),
     )
     .addSubcommand((subcommand) =>
       subcommand
         .setName('disable')
-        .setDescription('Disable a command or entire category')
+        .setDescription('Вимкнути команду або цілу категорію')
         .addStringOption((option) =>
           option
             .setName('scope')
-            .setDescription('Disable a single command or a whole category')
+            .setDescription('Вимкнути окрему команду або цілу категорію')
             .setRequired(true)
             .addChoices(
-              { name: 'Category', value: 'category' },
-              { name: 'Command', value: 'command' },
+              { name: 'Категорія', value: 'category' },
+              { name: 'Команда', value: 'command' },
             ),
         )
         .addStringOption((option) =>
           option
             .setName('target')
-            .setDescription('Category or command name')
+            .setDescription('Назва категорії або команди')
             .setRequired(true)
             .setAutocomplete(true),
         ),
@@ -81,21 +81,21 @@ export default {
     .addSubcommand((subcommand) =>
       subcommand
         .setName('enable')
-        .setDescription('Enable a command or entire category')
+        .setDescription('Увімкнути команду або цілу категорію')
         .addStringOption((option) =>
           option
             .setName('scope')
-            .setDescription('Enable a single command or a whole category')
+            .setDescription('Увімкнути окрему команду або цілу категорію')
             .setRequired(true)
             .addChoices(
-              { name: 'Category', value: 'category' },
-              { name: 'Command', value: 'command' },
+              { name: 'Категорія', value: 'category' },
+              { name: 'Команда', value: 'command' },
             ),
         )
         .addStringOption((option) =>
           option
             .setName('target')
-            .setDescription('Category or command name')
+            .setDescription('Назва категорії або команди')
             .setRequired(true)
             .setAutocomplete(true),
         ),
@@ -197,7 +197,7 @@ export default {
             });
             await replyUserError(componentInteraction, {
               type: ErrorTypes.UNKNOWN,
-              message: error.message || 'Failed to update command access.',
+              message: error.message || 'Не вдалося оновити доступ до команд.',
             }).catch(() => {});
           }
         });
@@ -228,7 +228,7 @@ export default {
       if (scope === 'category') {
         const category = resolveCategoryChoice(client, target);
         if (!category) {
-          return await replyUserError(interaction, { type: ErrorTypes.UNKNOWN, message: 'No category matched \\`${target}\\`. Use \\`/commands dashboard\\` to browse categories.' });
+          return await replyUserError(interaction, { type: ErrorTypes.UNKNOWN, message: `Категорія \`${target}\` не знайдена. Використовуйте \`/commands dashboard\`, щоб переглянути категорії.` });
         }
 
         if (isDisable) {
@@ -236,8 +236,8 @@ export default {
           return InteractionHelper.safeEditReply(interaction, {
             embeds: [
               successEmbed(
-                'Category Disabled',
-                `All **${category.displayName}** commands are now disabled.\nProtected commands remain available.`,
+                'Категорію вимкнено',
+                `Усі команди категорії **${category.displayName}** тепер вимкнено.\nЗахищені команди залишаються доступними.`,
               ),
             ],
           });
@@ -245,7 +245,7 @@ export default {
 
         await enableCategory(client, interaction.guildId, category.key);
         return InteractionHelper.safeEditReply(interaction, {
-          embeds: [successEmbed('Category Enabled', `**${category.displayName}** commands are now enabled (except individually disabled commands).`)],
+          embeds: [successEmbed('Категорію увімкнено', `Команди категорії **${category.displayName}** тепер увімкнено (крім окремо вимкнених команд).`)],
         });
       }
 
@@ -253,13 +253,13 @@ export default {
       if (isDisable) {
         await disableCommand(client, interaction.guildId, commandName);
         return InteractionHelper.safeEditReply(interaction, {
-          embeds: [successEmbed('Command Disabled', `\`/${commandName}\` is now disabled in this server.`)],
+          embeds: [successEmbed('Команду вимкнено', `Команда \`/${commandName}\` тепер вимкнена на цьому сервері.`)],
         });
       }
 
       await enableCommand(client, interaction.guildId, commandName);
       return InteractionHelper.safeEditReply(interaction, {
-        embeds: [successEmbed('Command Enabled', `\`/${commandName}\` is now enabled in this server.`)],
+        embeds: [successEmbed('Команду увімкнено', `Команда \`/${commandName}\` тепер увімкнена на цьому сервері.`)],
       });
     } catch (error) {
       logger.error('commands command failed', {

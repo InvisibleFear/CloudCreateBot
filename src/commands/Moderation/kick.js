@@ -3,7 +3,7 @@ import { successEmbed } from '../../utils/embeds.js';
 import { logger } from '../../utils/logger.js';
 import { InteractionHelper } from '../../utils/interactionHelper.js';
 import { ModerationService } from '../../services/moderationService.js';
-import { handleInteractionError, TitanBotError, ErrorTypes } from '../../utils/errorHandler.js';
+import { handleInteractionError, CLoudCreateError, ErrorTypes } from '../../utils/errorHandler.js';
 
 export default {
     data: new SlashCommandBuilder()
@@ -24,7 +24,7 @@ export default {
   async execute(interaction, config, client) {
     try {
       if (!interaction.member.permissions.has(PermissionFlagsBits.KickMembers)) {
-        throw new TitanBotError(
+        throw new CLoudCreateError(
           "User lacks permission",
           ErrorTypes.PERMISSION,
           "You do not have permission to kick members."
@@ -36,7 +36,7 @@ export default {
       const reason = interaction.options.getString("reason") || "No reason provided";
 
       if (!targetUser) {
-        throw new TitanBotError(
+        throw new CLoudCreateError(
           'Missing target user',
           ErrorTypes.USER_INPUT,
           'You must specify a user to kick.',
@@ -45,7 +45,7 @@ export default {
       }
 
       if (targetUser.id === interaction.user.id) {
-        throw new TitanBotError(
+        throw new CLoudCreateError(
           "Cannot kick self",
           ErrorTypes.VALIDATION,
           "You cannot kick yourself."
@@ -53,7 +53,7 @@ export default {
       }
 
       if (targetUser.id === client.user.id) {
-        throw new TitanBotError(
+        throw new CLoudCreateError(
           "Cannot kick bot",
           ErrorTypes.VALIDATION,
           "You cannot kick the bot."
@@ -61,7 +61,7 @@ export default {
       }
 
       if (!member) {
-        throw new TitanBotError(
+        throw new CLoudCreateError(
           "Target not found",
           ErrorTypes.USER_INPUT,
           "The target user is not currently in this server.",

@@ -14,7 +14,7 @@ import { checkGiveaways } from './services/giveawayService.js';
 import { loadCommands, registerCommands as registerSlashCommands } from './handlers/commandLoader.js';
 import pkg from '../package.json' with { type: 'json' };
 
-class TitanBot extends Client {
+class CLoudCreate extends Client {
   constructor() {
     super({
       intents: [
@@ -46,7 +46,7 @@ class TitanBot extends Client {
 
   async start() {
     try {
-      startupLog('Starting TitanBot...');
+      startupLog('Starting CLoudCreate...');
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       startupLog('Initializing database...');
@@ -189,7 +189,7 @@ class TitanBot extends Client {
 
     app.get('/', (req, res) => {
       res.status(200).json({ 
-        message: 'TitanBot System Online',
+        message: 'CLoudCreate System Online',
         version: pkg.version,
         timestamp: new Date().toISOString()
       });
@@ -364,7 +364,7 @@ class TitanBot extends Client {
 }
 
 try {
-  const bot = new TitanBot();
+  const bot = new CLoudCreate();
   
   const setupShutdown = () => {
     process.on('SIGTERM', () => bot.shutdown('SIGTERM'));
@@ -397,4 +397,4 @@ try {
   process.exit(1);
 }
 
-export default TitanBot;
+export default CLoudCreate;

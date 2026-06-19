@@ -18,7 +18,7 @@ import {
 import { InteractionHelper } from '../../../utils/interactionHelper.js';
 import { successEmbed } from '../../../utils/embeds.js';
 import { logger } from '../../../utils/logger.js';
-import { TitanBotError, ErrorTypes, replyUserError } from '../../../utils/errorHandler.js';
+import { CLoudCreateError, ErrorTypes, replyUserError } from '../../../utils/errorHandler.js';
 import { getGuildConfig, setGuildConfig } from '../../../services/guildConfig.js';
 import { getWelcomeConfig } from '../../../utils/database.js';
 import { botHasPermission } from '../../../utils/permissionGuard.js';
@@ -172,7 +172,7 @@ export default {
             const cfg = guildConfig.verification;
 
             if (!cfg?.channelId) {
-                throw new TitanBotError(
+                throw new CLoudCreateError(
                     'Verification not configured',
                     ErrorTypes.CONFIGURATION,
                     'The verification system has not been set up yet. Run `/verification setup` first.',
@@ -242,14 +242,14 @@ export default {
                             break;
                     }
                 } catch (error) {
-                    if (error instanceof TitanBotError) {
+                    if (error instanceof CLoudCreateError) {
                         logger.debug(`Verification config validation error: ${error.message}`);
                     } else {
                         logger.error('Unexpected verification dashboard error:', error);
                     }
 
                     const errorMessage =
-                        error instanceof TitanBotError
+                        error instanceof CLoudCreateError
                             ? error.userMessage || 'An error occurred while processing your selection.'
                             : 'An unexpected error occurred while updating the configuration.';
 
@@ -367,9 +367,9 @@ export default {
                 }
             });
         } catch (error) {
-            if (error instanceof TitanBotError) throw error;
+            if (error instanceof CLoudCreateError) throw error;
             logger.error('Unexpected error in verification_dashboard:', error);
-            throw new TitanBotError(
+            throw new CLoudCreateError(
                 `Verification dashboard failed: ${error.message}`,
                 ErrorTypes.UNKNOWN,
                 'Failed to open the verification dashboard.',

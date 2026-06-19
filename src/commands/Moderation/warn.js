@@ -4,7 +4,7 @@ import { logModerationAction } from '../../utils/moderation.js';
 import { logger } from '../../utils/logger.js';
 import { WarningService } from '../../services/warningService.js';
 import { ModerationService } from '../../services/moderationService.js';
-import { handleInteractionError, TitanBotError, ErrorTypes } from '../../utils/errorHandler.js';
+import { handleInteractionError, CLoudCreateError, ErrorTypes } from '../../utils/errorHandler.js';
 import { InteractionHelper } from '../../utils/interactionHelper.js';
 export default {
     data: new SlashCommandBuilder()
@@ -48,7 +48,7 @@ export default {
                 const guildId = interaction.guildId;
 
                 if (!target) {
-                    throw new TitanBotError(
+                    throw new CLoudCreateError(
                         'Missing target user',
                         ErrorTypes.USER_INPUT,
                         'You must specify a user to warn.',
@@ -57,7 +57,7 @@ export default {
                 }
 
                 if (!reason) {
-                    throw new TitanBotError(
+                    throw new CLoudCreateError(
                         'Missing warning reason',
                         ErrorTypes.VALIDATION,
                         'You must provide a reason for the warning.',
@@ -66,7 +66,7 @@ export default {
                 }
 
                 if (!member) {
-                    throw new TitanBotError(
+                    throw new CLoudCreateError(
                         "Target not found",
                         ErrorTypes.USER_INPUT,
                         "The target user is not currently in this server."
@@ -75,7 +75,7 @@ export default {
 
                 const hierarchyCheck = ModerationService.validateHierarchy(interaction.member, member, 'warn');
                 if (!hierarchyCheck.valid) {
-                    throw new TitanBotError(
+                    throw new CLoudCreateError(
                         hierarchyCheck.error,
                         ErrorTypes.PERMISSION,
                         hierarchyCheck.error

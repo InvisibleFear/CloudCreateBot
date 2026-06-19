@@ -8,11 +8,11 @@ import { InteractionHelper } from '../../utils/interactionHelper.js';
 export default {
     data: new SlashCommandBuilder()
     .setName("purge")
-    .setDescription("Delete a specific amount of messages")
+    .setDescription("Видалити певну кількість повідомлень")
     .addIntegerOption((option) =>
       option
         .setName("amount")
-        .setDescription("Number of messages (1-100)")
+        .setDescription("Кількість повідомлень (1-100)")
         .setRequired(true),
     )
 .setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages),
@@ -24,7 +24,7 @@ export default {
       flags: MessageFlags.Ephemeral,
     });
     if (!deferSuccess) {
-      logger.warn(`Purge interaction defer failed`, {
+      logger.warn(`Помилка відкладення взаємодії purge`, {
         userId: interaction.user.id,
         guildId: interaction.guildId,
         commandName: 'purge'
@@ -33,13 +33,13 @@ export default {
     }
 
     if (!interaction.member.permissions.has(PermissionFlagsBits.ManageMessages))
-      return await replyUserError(interaction, { type: ErrorTypes.PERMISSION, message: 'You need the `Manage Messages` permission to purge messages.' });
+      return await replyUserError(interaction, { type: ErrorTypes.PERMISSION, message: 'Вам потрібне право `Управління повідомленнями` для видалення повідомлень.' });
 
     const amount = interaction.options.getInteger("amount");
     const channel = interaction.channel;
 
     if (amount < 1 || amount > 100)
-      return await replyUserError(interaction, { type: ErrorTypes.VALIDATION, message: 'Please specify a number between 1 and 100.' });
+      return await replyUserError(interaction, { type: ErrorTypes.VALIDATION, message: 'Вкажіть кількість від 1 до 100.' });
 
     try {
       const fetched = await channel.messages.fetch({ limit: amount });
@@ -47,28 +47,28 @@ export default {
       const deletedCount = deleted.size;
 
       const purgeEmbed = createEmbed(
-        "🗑️ Messages Purged (Action Log)",
-        `${deletedCount} messages were deleted by ${interaction.user}.`,
+        "🗑️ Повідомлення видалено (журнал дій)",
+        `${deletedCount} повідомлень видалено модератором ${interaction.user}.`,
       )
 .setColor(getColor('moderation'))
         .addFields(
-          { name: "Channel", value: channel.toString(), inline: true },
+          { name: "Канал", value: channel.toString(), inline: true },
           {
-            name: "Moderator",
+            name: "Модератор",
             value: `${interaction.user.tag} (${interaction.user.id})`,
             inline: true,
           },
-          { name: "Count", value: `${deletedCount} messages`, inline: false },
+          { name: "Кількість", value: `${deletedCount} повідомлень`, inline: false },
         );
 
       await logEvent({
         client,
         guild: interaction.guild,
         event: {
-          action: "Messages Purged",
-          target: `${channel} (${deletedCount} messages)`,
+          action: "Повідомлення видалено",
+          target: `${channel} (${deletedCount} повідомлень)`,
           executor: `${interaction.user.tag} (${interaction.user.id})`,
-          reason: `Deleted ${deletedCount} messages`,
+          reason: `Видалено ${deletedCount} повідомлень`,
           metadata: {
             channelId: channel.id,
             messageCount: deletedCount,
@@ -81,8 +81,8 @@ export default {
       await InteractionHelper.safeEditReply(interaction, {
         embeds: [
           successEmbed(
-            "Messages Purged",
-            `Deleted ${deletedCount} messages in ${channel}.`,
+            "🗑️ Повідомлення видалено",
+            `Видалено ${deletedCount} повідомлень у ${channel}.`,
           ),
         ],
         flags: MessageFlags.Ephemeral,
@@ -90,12 +90,12 @@ export default {
 
       setTimeout(() => {
         interaction.deleteReply().catch(err => 
-          logger.debug('Failed to auto-delete purge response:', err)
+          logger.debug('Не вдалося автоматично видалити відповідь purge:', err)
         );
       }, 3000);
     } catch (error) {
-      logger.error('Purge command error:', error);
-      await replyUserError(interaction, { type: ErrorTypes.UNKNOWN, message: 'An unexpected error occurred during message deletion. Note: Messages older than 14 days cannot be bulk deleted.' });
+      logger.error('Помилка команди purge:', error);
+      await replyUserError(interaction, { type: ErrorTypes.UNKNOWN, message: 'Під час видалення повідомлень виникла помилка. Зверніть увагу: повідомлення старші за 14 днів не можна видаляти масово.' });
     }
   }
 };

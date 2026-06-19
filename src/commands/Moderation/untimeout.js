@@ -8,11 +8,11 @@ import { InteractionHelper } from '../../utils/interactionHelper.js';
 export default {
     data: new SlashCommandBuilder()
         .setName("untimeout")
-        .setDescription("Remove timeout from a user")
+        .setDescription("Зняти тайм-аут з користувача")
         .addUserOption((option) =>
             option
                 .setName("target")
-                .setDescription("User to untimeout")
+                .setDescription("Користувач, з якого знімається тайм-аут")
                 .setRequired(true),
         )
 .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers),
@@ -21,7 +21,7 @@ export default {
     async execute(interaction, config, client) {
         const deferSuccess = await InteractionHelper.safeDefer(interaction);
         if (!deferSuccess) {
-            logger.warn(`Untimeout interaction defer failed`, {
+            logger.warn(`Помилка відкладення взаємодії untimeout`, {
                 userId: interaction.user.id,
                 guildId: interaction.guildId,
                 commandName: 'untimeout'
@@ -37,7 +37,7 @@ export default {
                 throw new CLoudCreateError(
                     'Missing target user',
                     ErrorTypes.USER_INPUT,
-                    'You must specify a user to untimeout.',
+                    'Ви повинні вказати користувача для зняття тайм-ауту.',
                     { subtype: 'invalid_user' },
                 );
             }
@@ -46,7 +46,7 @@ export default {
                 throw new CLoudCreateError(
                     "Target not found",
                     ErrorTypes.USER_INPUT,
-                    "The target user is not currently in this server."
+                    "Цільовий користувач зараз не знаходиться на цьому сервері."
                 );
             }
 
@@ -59,12 +59,12 @@ export default {
             await InteractionHelper.safeEditReply(interaction, {
                 embeds: [
                     successEmbed(
-                        `🔓 **Removed timeout** from ${targetUser.tag}`,
+                        `🔓 **Тайм-аут знято** з ${targetUser.tag}`,
                     ),
                 ],
             });
         } catch (error) {
-            logger.error('Untimeout command error:', error);
+            logger.error('Помилка команди untimeout:', error);
             await handleInteractionError(interaction, error, { subtype: 'untimeout_failed' });
         }
     }

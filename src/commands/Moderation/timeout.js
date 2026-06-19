@@ -6,35 +6,35 @@ import { InteractionHelper } from '../../utils/interactionHelper.js';
 import { ModerationService } from '../../services/moderationService.js';
 
 const durationChoices = [
-    { name: "5 minutes", value: 5 },
-    { name: "10 minutes", value: 10 },
-    { name: "30 minutes", value: 30 },
-    { name: "1 hour", value: 60 },
-    { name: "6 hours", value: 360 },
-    { name: "1 day", value: 1440 },
-    { name: "1 week", value: 10080 },
+    { name: "5 хвилин", value: 5 },
+    { name: "10 хвилин", value: 10 },
+    { name: "30 хвилин", value: 30 },
+    { name: "1 година", value: 60 },
+    { name: "6 годин", value: 360 },
+    { name: "1 день", value: 1440 },
+    { name: "1 тиждень", value: 10080 },
 ];
 
 export default {
     data: new SlashCommandBuilder()
         .setName("timeout")
-        .setDescription("Timeout a user for a specific duration.")
+        .setDescription("Дати тайм-аут користувачу на певний час.")
         .addUserOption((option) =>
             option
                 .setName("target")
-                .setDescription("User to timeout")
+                .setDescription("Користувач для тайм-ауту")
                 .setRequired(true),
         )
         .addIntegerOption(
             (option) =>
                 option
                     .setName("duration")
-                    .setDescription("Duration of the timeout")
+                    .setDescription("Тривалість тайм-ауту")
                     .setRequired(true)
 .addChoices(...durationChoices),
         )
         .addStringOption((option) =>
-            option.setName("reason").setDescription("Reason for the timeout"),
+            option.setName("reason").setDescription("Причина тайм-ауту"),
         )
 .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers),
     category: "moderation",
@@ -42,7 +42,7 @@ export default {
     async execute(interaction, config, client) {
         const deferSuccess = await InteractionHelper.safeDefer(interaction);
         if (!deferSuccess) {
-            logger.warn(`Timeout interaction defer failed`, {
+            logger.warn(`Помилка відкладення взаємодії timeout`, {
                 userId: interaction.user.id,
                 guildId: interaction.guildId,
                 commandName: 'timeout'
@@ -55,20 +55,20 @@ export default {
                 throw new CLoudCreateError(
                     "User lacks permission",
                     ErrorTypes.PERMISSION,
-                    "You need the `Moderate Members` permission to set a timeout."
+                    "Вам потрібне право `Модерування учасників` для встановлення тайм-ауту."
                 );
             }
 
             const targetUser = interaction.options.getUser("target");
             const member = interaction.options.getMember("target");
             const durationMinutes = interaction.options.getInteger("duration");
-            const reason = interaction.options.getString("reason") || "No reason provided";
+            const reason = interaction.options.getString("reason") || "Причина не вказана";
 
             if (!targetUser) {
                 throw new CLoudCreateError(
                     'Missing target user',
                     ErrorTypes.USER_INPUT,
-                    'You must specify a user to timeout.',
+                    'Ви повинні вказати користувача для тайм-ауту.',
                     { subtype: 'invalid_user' },
                 );
             }
@@ -77,21 +77,21 @@ export default {
                 throw new CLoudCreateError(
                     "Cannot timeout self",
                     ErrorTypes.VALIDATION,
-                    "You cannot timeout yourself."
+                    "Ви не можете дати тайм-аут собі."
                 );
             }
             if (targetUser.id === client.user.id) {
                 throw new CLoudCreateError(
                     "Cannot timeout bot",
                     ErrorTypes.VALIDATION,
-                    "You cannot timeout the bot."
+                    "Ви не можете дати тайм-аут боту."
                 );
             }
             if (!member) {
                 throw new CLoudCreateError(
                     "Target not found",
                     ErrorTypes.USER_INPUT,
-                    "The target user is not currently in this server."
+                    "Цільовий користувач зараз не знаходиться на цьому сервері."
                 );
             }
 
@@ -106,18 +106,18 @@ export default {
 
             const durationDisplay =
                 durationChoices.find((c) => c.value === durationMinutes)
-                    ?.name || `${durationMinutes} minutes`;
+                    ?.name || `${durationMinutes} хвилин`;
 
             await InteractionHelper.safeEditReply(interaction, {
                 embeds: [
                     successEmbed(
-                        `⏳ **Timed out** ${targetUser.tag} for ${durationDisplay}.`,
-                        `**Reason:** ${reason}\n**Case ID:** #${result.caseId}`,
+                        `⏳ **Тайм-аут** ${targetUser.tag} на ${durationDisplay}.`,
+                        `**Причина:** ${reason}\n**ID справи:** #${result.caseId}`,
                     ),
                 ],
             });
         } catch (error) {
-            logger.error('Timeout command error:', error);
+            logger.error('Помилка команди timeout:', error);
             await handleInteractionError(interaction, error, { subtype: 'timeout_failed' });
         }
     }

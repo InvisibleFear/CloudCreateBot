@@ -16,32 +16,32 @@ function getGuildNotesListKey(guildId) {
 export default {
     data: new SlashCommandBuilder()
         .setName("usernotes")
-        .setDescription("Manage user notes for moderation purposes")
+        .setDescription("Керувати нотатками про користувача для цілей модерації")
         .addSubcommand(subcommand =>
             subcommand
                 .setName("add")
-                .setDescription("Add a note to a user")
+                .setDescription("Додати нотатку до користувача")
                 .addUserOption(option =>
                     option
                         .setName("target")
-                        .setDescription("The user to add a note for")
+                        .setDescription("Користувач, до якого додається нотатка")
                         .setRequired(true)
                 )
                 .addStringOption(option =>
                     option
                         .setName("note")
-                        .setDescription("The note to add")
+                        .setDescription("Текст нотатки")
                         .setRequired(true)
                 )
                 .addStringOption(option =>
                     option
                         .setName("type")
-                        .setDescription("Type of note")
+                        .setDescription("Тип нотатки")
                         .addChoices(
-                            { name: "Warning", value: "warning" },
-                            { name: "Positive", value: "positive" },
-                            { name: "Neutral", value: "neutral" },
-                            { name: "Alert", value: "alert" }
+                            { name: "Попередження", value: "warning" },
+                            { name: "Позитивна", value: "positive" },
+                            { name: "Нейтральна", value: "neutral" },
+                            { name: "Тривога", value: "alert" }
                         )
                         .setRequired(false)
                 )
@@ -49,28 +49,28 @@ export default {
         .addSubcommand(subcommand =>
             subcommand
                 .setName("view")
-                .setDescription("View notes for a user")
+                .setDescription("Переглянути нотатки про користувача")
                 .addUserOption(option =>
                     option
                         .setName("target")
-                        .setDescription("The user to view notes for")
+                        .setDescription("Користувач, нотатки якого переглядаються")
                         .setRequired(true)
                 )
         )
         .addSubcommand(subcommand =>
             subcommand
                 .setName("remove")
-                .setDescription("Remove a specific note from a user")
+                .setDescription("Видалити конкретну нотатку про користувача")
                 .addUserOption(option =>
                     option
                         .setName("target")
-                        .setDescription("The user to remove a note from")
+                        .setDescription("Користувач, з якого видаляється нотатка")
                         .setRequired(true)
                 )
                 .addIntegerOption(option =>
                     option
                         .setName("index")
-                        .setDescription("The index of the note to remove")
+                        .setDescription("Індекс нотатки для видалення")
                         .setRequired(true)
                         .setMinValue(1)
                 )
@@ -78,11 +78,11 @@ export default {
         .addSubcommand(subcommand =>
             subcommand
                 .setName("clear")
-                .setDescription("Clear all notes for a user")
+                .setDescription("Очистити всі нотатки про користувача")
                 .addUserOption(option =>
                     option
                         .setName("target")
-                        .setDescription("The user to clear notes for")
+                        .setDescription("Користувач, нотатки якого очищуються")
                         .setRequired(true)
                 )
         )
@@ -91,7 +91,7 @@ export default {
 
     async execute(interaction, config, client) {
         if (!interaction.member.permissions.has(PermissionFlagsBits.ManageMessages)) {
-            return await replyUserError(interaction, { type: ErrorTypes.PERMISSION, message: 'You do not have permission to manage user notes.' });
+            return await replyUserError(interaction, { type: ErrorTypes.PERMISSION, message: 'У вас немає права керувати нотатками про користувачів.' });
         }
 
         const subcommand = interaction.options.getSubcommand();
@@ -99,7 +99,7 @@ export default {
         const guildId = interaction.guild.id;
 
         if (subcommand !== "view" && subcommand !== "remove" && subcommand !== "clear" && subcommand !== "add") {
-            return await replyUserError(interaction, { type: ErrorTypes.VALIDATION, message: 'Please select a valid subcommand.' });
+            return await replyUserError(interaction, { type: ErrorTypes.VALIDATION, message: 'Виберіть дійсну підкоманду.' });
         }
 
         let notes = [];
@@ -119,11 +119,11 @@ export default {
                 case "clear":
                     return await handleClearNotes(interaction, targetUser, notes, guildId);
                 default:
-                    return await replyUserError(interaction, { type: ErrorTypes.VALIDATION, message: 'Please select a valid subcommand.' });
+                    return await replyUserError(interaction, { type: ErrorTypes.VALIDATION, message: 'Виберіть дійсну підкоманду.' });
             }
         } catch (error) {
-            logger.error(`Error in usernotes command (${subcommand}):`, error);
-            return await replyUserError(interaction, { type: ErrorTypes.UNKNOWN, message: 'An error occurred while processing your request. Please try again later.' });
+            logger.error(`Помилка команди usernotes (${subcommand}):`, error);
+            return await replyUserError(interaction, { type: ErrorTypes.UNKNOWN, message: 'Під час обробки запиту виникла помилка. Спробуйте ще раз.' });
         }
     }
 };
@@ -133,11 +133,11 @@ async function handleAddNote(interaction, targetUser, notes, guildId) {
     const type = interaction.options.getString("type") || "neutral";
 
     if (note.length > 1000) {
-        return await replyUserError(interaction, { type: ErrorTypes.UNKNOWN, message: 'Notes must be 1000 characters or less.' });
+        return await replyUserError(interaction, { type: ErrorTypes.UNKNOWN, message: 'Нотатки не можуть перевищувати 1000 символів.' });
     }
 
     if (note.length === 0) {
-        return await replyUserError(interaction, { type: ErrorTypes.UNKNOWN, message: 'Note cannot be empty.' });
+        return await replyUserError(interaction, { type: ErrorTypes.UNKNOWN, message: 'Нотатка не може бути порожньою.' });
     }
 
     note = sanitizeInput(note);
@@ -161,11 +161,11 @@ async function handleAddNote(interaction, targetUser, notes, guildId) {
     return InteractionHelper.safeReply(interaction, {
         embeds: [
             successEmbed(
-                `${typeInfo.emoji} Note Added`,
-                `Added a **${type}** note for **${targetUser.tag}**:\n\n` +
+                `${typeInfo.emoji} Нотатку додано`,
+                `Додано **${getTypeLabel(type)}** нотатку для **${targetUser.tag}**:\n\n` +
                 `> ${note}\n\n` +
-                `**Moderator:** ${interaction.user.tag}\n` +
-                `**Total Notes:** ${notes.length}`
+                `**Модератор:** ${interaction.user.tag}\n` +
+                `**Всього нотаток:** ${notes.length}`
             )
         ]
     });
@@ -176,8 +176,8 @@ async function handleViewNotes(interaction, targetUser, notes) {
         return InteractionHelper.safeReply(interaction, {
             embeds: [
                 infoEmbed(
-                    "📝 No Notes",
-                    `There are no notes for **${targetUser.tag}**.`
+                    "📝 Нотаток немає",
+                    `Для **${targetUser.tag}** немає жодних нотаток.`
                 ),
             ],
         });
@@ -185,24 +185,24 @@ async function handleViewNotes(interaction, targetUser, notes) {
 
     const sortedNotes = [...notes].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
-    let description = `**Notes for ${targetUser.tag} (${targetUser.id}):**\n\n`;
+    let description = `**Нотатки про ${targetUser.tag} (${targetUser.id}):**\n\n`;
     
     sortedNotes.forEach((note, index) => {
         const typeInfo = getNoteTypeInfo(note.type);
-        const date = new Date(note.timestamp).toLocaleDateString();
-        description += `${typeInfo.emoji} **Note #${index + 1}** (${note.type}) - ${date}\n`;
+        const date = new Date(note.timestamp).toLocaleDateString('uk-UA');
+        description += `${typeInfo.emoji} **Нотатка #${index + 1}** (${getTypeLabel(note.type)}) — ${date}\n`;
         description += `> ${note.content}\n`;
-        description += `*Added by ${note.author}*\n\n`;
+        description += `*Додано: ${note.author}*\n\n`;
     });
 
     if (description.length > 4000) {
-        description = description.substring(0, 3900) + "\n... *(truncated)*";
+        description = description.substring(0, 3900) + "\n... *(скорочено)*";
     }
 
     return InteractionHelper.safeReply(interaction, {
         embeds: [
             infoEmbed(
-                `📝 User Notes (${notes.length})`,
+                `📝 Нотатки про користувача (${notes.length})`,
                 description
             )
         ]
@@ -213,7 +213,7 @@ async function handleRemoveNote(interaction, targetUser, notes, guildId) {
 const index = interaction.options.getInteger("index") - 1;
 
     if (index < 0 || index >= notes.length) {
-        return await replyUserError(interaction, { type: ErrorTypes.VALIDATION, message: 'Please provide a valid note index (1-${notes.length}).' });
+        return await replyUserError(interaction, { type: ErrorTypes.VALIDATION, message: `Вкажіть дійсний індекс нотатки (1-${notes.length}).` });
     }
 
     const removedNote = notes[index];
@@ -227,10 +227,10 @@ const index = interaction.options.getInteger("index") - 1;
     return InteractionHelper.safeReply(interaction, {
         embeds: [
             successEmbed(
-                `${typeInfo.emoji} Note Removed`,
-                `Removed note #${index + 1} from **${targetUser.tag}**:\n\n` +
+                `${typeInfo.emoji} Нотатку видалено`,
+                `Видалено нотатку #${index + 1} для **${targetUser.tag}**:\n\n` +
                 `> ${removedNote.content}\n\n` +
-                `**Remaining Notes:** ${notes.length}`
+                `**Залишилось нотаток:** ${notes.length}`
             )
         ]
     });
@@ -243,8 +243,8 @@ async function handleClearNotes(interaction, targetUser, notes, guildId) {
         return InteractionHelper.safeReply(interaction, {
             embeds: [
                 infoEmbed(
-                    "No Notes to Clear",
-                    `There are no notes for **${targetUser.tag}** to clear.`
+                    "Нотаток для очищення немає",
+                    `Для **${targetUser.tag}** немає нотаток, які можна очистити.`
                 ),
             ],
         });
@@ -258,8 +258,8 @@ async function handleClearNotes(interaction, targetUser, notes, guildId) {
     return InteractionHelper.safeReply(interaction, {
         embeds: [
             successEmbed(
-                "🗑️ Notes Cleared",
-                `Cleared **${noteCount}** notes from **${targetUser.tag}**.`
+                "🗑️ Нотатки очищено",
+                `Очищено **${noteCount}** нотаток для **${targetUser.tag}**.`
             )
         ]
     });
@@ -274,4 +274,14 @@ function getNoteTypeInfo(type) {
     };
     
     return types[type] || types.neutral;
+}
+
+function getTypeLabel(type) {
+    const labels = {
+        warning: "Попередження",
+        positive: "Позитивна",
+        neutral: "Нейтральна",
+        alert: "Тривога"
+    };
+    return labels[type] || type;
 }

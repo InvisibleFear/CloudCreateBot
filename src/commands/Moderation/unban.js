@@ -8,16 +8,16 @@ import { InteractionHelper } from '../../utils/interactionHelper.js';
 export default {
     data: new SlashCommandBuilder()
         .setName("unban")
-        .setDescription("Unban a user from the server")
+        .setDescription("Розблокувати користувача на сервері")
         .addUserOption(option =>
             option
                 .setName("target")
-                .setDescription("The user to unban (can be ID or mention)")
+                .setDescription("Користувач для розблокування (може бути ID або згадка)")
                 .setRequired(true)
         )
         .addStringOption(option =>
             option.setName("reason")
-                .setDescription("Reason for the unban")
+                .setDescription("Причина розблокування")
                 .setRequired(false)
         )
         .setDefaultMemberPermissions(PermissionFlagsBits.BanMembers),
@@ -26,7 +26,7 @@ export default {
     async execute(interaction, config, client) {
         const deferSuccess = await InteractionHelper.safeDefer(interaction);
         if (!deferSuccess) {
-            logger.warn(`Unban interaction defer failed`, {
+            logger.warn(`Помилка відкладення взаємодії unban`, {
                 userId: interaction.user.id,
                 guildId: interaction.guildId,
                 commandName: 'unban'
@@ -36,7 +36,7 @@ export default {
 
         try {
                 const targetUser = interaction.options.getUser("target");
-                const reason = interaction.options.getString("reason") || "No reason provided";
+                const reason = interaction.options.getString("reason") || "Причина не вказана";
 
                 const result = await ModerationService.unbanUser({
                     guild: interaction.guild,
@@ -48,13 +48,13 @@ export default {
                 await InteractionHelper.safeEditReply(interaction, {
                     embeds: [
                         successEmbed(
-                            "✅ User Unbanned",
-                            `Successfully unbanned **${targetUser.tag}** from the server.\n\n**Reason:** ${reason}\n**Case ID:** #${result.caseId}`
+                            "✅ Користувача розблоковано",
+                            `**${targetUser.tag}** успішно розблоковано на сервері.\n\n**Причина:** ${reason}\n**ID справи:** #${result.caseId}`
                         )
                     ]
                 });
         } catch (error) {
-            logger.error('Unban command error:', error);
+            logger.error('Помилка команди unban:', error);
             await handleInteractionError(interaction, error, { subtype: 'unban_failed' });
         }
     }

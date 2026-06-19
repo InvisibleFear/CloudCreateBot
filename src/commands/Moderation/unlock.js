@@ -9,7 +9,7 @@ export default {
     data: new SlashCommandBuilder()
         .setName("unlock")
         .setDescription(
-            "Unlocks the current channel (allows @everyone to send messages again).",
+            "Розблокувати поточний канал (дозволити @everyone надсилати повідомлення знову).",
         )
 .setDefaultMemberPermissions(PermissionFlagsBits.ManageChannels),
     category: "moderation",
@@ -17,7 +17,7 @@ export default {
     async execute(interaction, config, client) {
         const deferSuccess = await InteractionHelper.safeDefer(interaction);
         if (!deferSuccess) {
-            logger.warn(`Unlock interaction defer failed`, {
+            logger.warn(`Помилка відкладення взаємодії unlock`, {
                 userId: interaction.user.id,
                 guildId: interaction.guildId,
                 commandName: 'unlock'
@@ -30,7 +30,7 @@ export default {
                 PermissionFlagsBits.ManageChannels,
             )
         )
-            return await replyUserError(interaction, { type: ErrorTypes.PERMISSION, message: 'You need the `Manage Channels` permission to unlock channels.' });
+            return await replyUserError(interaction, { type: ErrorTypes.PERMISSION, message: 'Вам потрібне право `Керування каналами` для розблокування каналів.' });
 
         const channel = interaction.channel;
         const everyoneRole = interaction.guild.roles.everyone;
@@ -43,7 +43,7 @@ export default {
                 currentPermissions.has(PermissionFlagsBits.SendMessages) ===
                     null
             ) {
-                return await replyUserError(interaction, { type: ErrorTypes.UNKNOWN, message: '${channel} is not explicitly locked (everyone can already send messages).' });
+                return await replyUserError(interaction, { type: ErrorTypes.UNKNOWN, message: `${channel} не заблоковано явно (всі вже можуть надсилати повідомлення).` });
             }
 
             await channel.permissionOverwrites.edit(
@@ -51,23 +51,23 @@ export default {
                 { SendMessages: true },
                 {
                     type: 0,
-                    reason: `Channel unlocked by ${interaction.user.tag}`,
+                    reason: `Канал розблоковано модератором ${interaction.user.tag}`,
 },
             );
 
             const unlockEmbed = createEmbed(
-                "🔓 Channel Unlocked (Action Log)",
-                `${channel} has been unlocked by ${interaction.user}.`,
+                "🔓 Канал розблоковано (журнал дій)",
+                `${channel} розблоковано модератором ${interaction.user}.`,
             )
 .setColor(getColor('success'))
                 .addFields(
                     {
-                        name: "Channel",
+                        name: "Канал",
                         value: channel.toString(),
                         inline: true,
                     },
                     {
-                        name: "Moderator",
+                        name: "Модератор",
                         value: `${interaction.user.tag} (${interaction.user.id})`,
                         inline: true,
                     },
@@ -77,12 +77,12 @@ export default {
                 client,
                 guild: interaction.guild,
                 event: {
-                    action: "Channel Unlocked",
+                    action: "Канал розблоковано",
                     target: channel.toString(),
                     executor: `${interaction.user.tag} (${interaction.user.id})`,
                     metadata: {
                         channelId: channel.id,
-                        category: channel.parent?.name || 'None'
+                        category: channel.parent?.name || 'Немає'
                     }
                 }
             });
@@ -90,14 +90,14 @@ export default {
             await InteractionHelper.safeEditReply(interaction, {
                 embeds: [
                     successEmbed(
-                        `🔓 **Channel Unlocked**`,
-                        `${channel} is now unlocked. You may speak now.`,
+                        `🔓 **Канал розблоковано**`,
+                        `${channel} тепер розблоковано. Можна писати!`,
                     ),
                 ],
             });
         } catch (error) {
-            logger.error('Unlock command error:', error);
-            await replyUserError(interaction, { type: ErrorTypes.PERMISSION, message: 'An unexpected error occurred while trying to unlock the channel. Check my permissions (I need \'Manage Channels\').' });
+            logger.error('Помилка команди unlock:', error);
+            await replyUserError(interaction, { type: ErrorTypes.PERMISSION, message: "Під час розблокування каналу виникла помилка. Перевірте мої права (потрібне 'Керування каналами')." });
         }
     }
 };

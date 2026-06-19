@@ -8,18 +8,18 @@ export default {
     slashOnly: true,
     data: new SlashCommandBuilder()
         .setName('greet')
-        .setDescription('Manage welcome & goodbye settings')
+        .setDescription('Керувати налаштуваннями привітань та прощань')
         .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild)
         .addSubcommand(subcommand =>
             subcommand
                 .setName('dashboard')
-                .setDescription('Open the welcome & goodbye configuration dashboard'),
+                .setDescription('Відкрити панель конфігурації привітань та прощань'),
         ),
 
     async execute(interaction, config, client) {
         try {
             if (!interaction.memberPermissions?.has(PermissionFlagsBits.ManageGuild)) {
-                return await replyUserError(interaction, { type: ErrorTypes.PERMISSION, message: 'You need the **Manage Server** permission to use `/greet`.' });
+                return await replyUserError(interaction, { type: ErrorTypes.PERMISSION, message: 'Вам потрібні права на **Керування сервером**, щоб використовувати `/greet`.' });
             }
 
             const subcommand = interaction.options.getSubcommand();
@@ -32,7 +32,7 @@ export default {
             }
         } catch (error) {
             if (error instanceof CLoudCreateError) {
-                return await replyUserError(interaction, { type: ErrorTypes.CONFIGURATION, message: 'error.userMessage || \'Something went wrong.\'' });
+                return await replyUserError(interaction, { type: ErrorTypes.CONFIGURATION, message: error.userMessage || 'Щось пішло не так.' });
             }
             await handleInteractionError(interaction, error, { command: 'greet' });
         }

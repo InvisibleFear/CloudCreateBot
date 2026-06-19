@@ -6,21 +6,22 @@ import { WarningService } from '../../services/warningService.js';
 import { ModerationService } from '../../services/moderationService.js';
 import { handleInteractionError, CLoudCreateError, ErrorTypes } from '../../utils/errorHandler.js';
 import { InteractionHelper } from '../../utils/interactionHelper.js';
+
 export default {
     data: new SlashCommandBuilder()
         .setName("warn")
-        .setDescription("Warn a user")
+        .setDescription("Попередити користувача")
         .addUserOption((o) =>
             o
                 .setName("target")
                 .setRequired(true)
-                .setDescription("User to warn"),
+                .setDescription("Користувач, якого потрібно попередити"),
         )
         .addStringOption((o) =>
             o
                 .setName("reason")
                 .setRequired(true)
-                .setDescription("Reason for the warning"),
+                .setDescription("Причина попередження"),
         )
         .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers),
     category: "moderation",
@@ -38,7 +39,7 @@ export default {
 
         try {
                 if (!interaction.member.permissions.has(PermissionFlagsBits.ModerateMembers)) {
-                    throw new Error("You need the `Moderate Members` permission to issue warnings.");
+                    throw new Error("Вам потрібні права на **Модерування учасників**, щоб видавати попередження.");
                 }
 
                 const target = interaction.options.getUser("target");
@@ -51,7 +52,7 @@ export default {
                     throw new CLoudCreateError(
                         'Missing target user',
                         ErrorTypes.USER_INPUT,
-                        'You must specify a user to warn.',
+                        'Ви повинні вказати користувача, якого потрібно попередити.',
                         { subtype: 'invalid_user' },
                     );
                 }
@@ -60,7 +61,7 @@ export default {
                     throw new CLoudCreateError(
                         'Missing warning reason',
                         ErrorTypes.VALIDATION,
-                        'You must provide a reason for the warning.',
+                        'Ви повинні вказати причину попередження.',
                         { subtype: 'missing_required' },
                     );
                 }
@@ -69,7 +70,7 @@ export default {
                     throw new CLoudCreateError(
                         "Target not found",
                         ErrorTypes.USER_INPUT,
-                        "The target user is not currently in this server."
+                        "Користувача не знайдено на цьому сервері."
                     );
                 }
 
@@ -100,7 +101,7 @@ export default {
                     client,
                     guild: interaction.guild,
                     event: {
-                        action: "User Warned",
+                        action: "Користувача попереджено",
                         target: `${target.tag} (${target.id})`,
                         executor: `${moderator.tag} (${moderator.id})`,
                         reason,
@@ -117,8 +118,8 @@ export default {
                 await InteractionHelper.safeEditReply(interaction, {
                     embeds: [
                         successEmbed(
-                            `⚠️ **Warned** ${target.tag}`,
-                            `**Reason:** ${reason}\n**Total Warns:** ${totalWarns}`,
+                            `**Причина:** ${reason}\n**Всього попереджень:** ${totalWarns}`,
+                            `⚠️ Попереджено користувача ${target.tag}`,
                         ),
                     ],
                 });

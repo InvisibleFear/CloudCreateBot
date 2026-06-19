@@ -7,11 +7,11 @@ import { InteractionHelper } from '../../utils/interactionHelper.js';
 export default {
     data: new SlashCommandBuilder()
     .setName("roll")
-    .setDescription("Rolls dice using standard notation (e.g., 2d20, 1d6 + 5).")
+    .setDescription("Кидає кубики, використовуючи стандартну нотацію (наприклад, 2d20, 1d6 + 5).")
     .addStringOption((option) =>
       option
         .setName("notation")
-        .setDescription("The dice notation (e.g., 2d6, 1d20 + 4)")
+        .setDescription("Нотація кубиків (наприклад, 2d6, 1d20 + 4)")
         .setRequired(true)
         .setMaxLength(50),
     ),
@@ -32,7 +32,7 @@ export default {
         throw new CLoudCreateError(
           `Invalid dice notation: ${notation}`,
           ErrorTypes.USER_INPUT,
-          'Invalid notation. Use format like `1d20` or `3d6+5`.'
+          'Недійсна нотація. Використовуйте формат на зразок `1d20` або `3d6+5`.'
         );
       }
 
@@ -44,7 +44,7 @@ export default {
         throw new CLoudCreateError(
           `Too many dice requested: ${numDice}`,
           ErrorTypes.VALIDATION,
-          'Please keep the number of dice between 1 and 20.'
+          'Будь ласка, вкажіть кількість кубиків від 1 до 20.'
         );
       }
 
@@ -52,7 +52,7 @@ export default {
         throw new CLoudCreateError(
           `Invalid number of sides: ${numSides}`,
           ErrorTypes.VALIDATION,
-          'Please keep the number of sides between 1 and 1000.'
+          'Будь ласка, вкажіть кількість граней від 1 до 1000.'
         );
       }
 
@@ -68,12 +68,12 @@ export default {
       const finalTotal = totalRoll + modifier;
 
       const resultsDetail =
-        numDice > 1 ? `**Rolls:** ${rolls.join(" + ")}\n` : "";
+        numDice > 1 ? `**Кидки:** ${rolls.join(" + ")}\n` : "";
       const modifierText = modifier !== 0 ? `+ (${modifier})` : "";
 
       const embed = successEmbed(
-        `🎲 Rolling ${numDice}d${numSides}${modifier !== 0 ? match[3] : ""}`,
-        `${resultsDetail}**Total Roll:** ${totalRoll}${modifierText} = **${finalTotal}**`,
+        `${resultsDetail}**Сума:** ${totalRoll}${modifierText} = **${finalTotal}**`,
+        `🎲 Кидок ${numDice}d${numSides}${modifier !== 0 ? match[3] : ""}`,
       );
 
       await InteractionHelper.safeEditReply(interaction, { embeds: [embed] });

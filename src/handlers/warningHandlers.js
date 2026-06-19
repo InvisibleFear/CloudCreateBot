@@ -3,6 +3,7 @@ import { successEmbed } from '../utils/embeds.js';
 import { WarningService } from '../services/warningService.js';
 import { InteractionHelper } from '../utils/interactionHelper.js';
 import { logger } from '../utils/logger.js';
+import { replyUserError, ErrorTypes } from '../utils/errorHandler.js';
 
 const warningDeleteSpecificHandler = {
   name: 'warning_delete_specific',
@@ -11,17 +12,17 @@ const warningDeleteSpecificHandler = {
       const [, targetUserId, originalModeratorId] = interaction.customId.split(':');
       
       if (interaction.user.id !== originalModeratorId) {
-        return await replyUserError(interaction, { type: ErrorTypes.PERMISSION, message: 'Only the moderator who viewed these warnings can delete them.' });
+        return await replyUserError(interaction, { type: ErrorTypes.PERMISSION, message: 'Лише модератор, який переглядав ці попередження, може видалити їх.' });
       }
 
       const modal = new ModalBuilder()
         .setCustomId(`warning_delete_modal:${targetUserId}:${interaction.user.id}`)
-        .setTitle('Delete Warning');
+        .setTitle('Видалити попередження');
 
       const warningNumberInput = new TextInputBuilder()
         .setCustomId('warning_number')
-        .setLabel('Warning Number (#1, #2, etc.)')
-        .setPlaceholder('Enter the warning number to delete')
+        .setLabel('Номер попередження (#1, #2 тощо)')
+        .setPlaceholder('Введіть номер попередження для видалення')
         .setRequired(true)
         .setStyle(TextInputStyle.Short)
         .setMaxLength(10);
@@ -32,7 +33,7 @@ const warningDeleteSpecificHandler = {
       await interaction.showModal(modal);
     } catch (error) {
       logger.error('Warning delete specific button error:', error);
-      await replyUserError(interaction, { type: ErrorTypes.UNKNOWN, message: 'Failed to open delete warning modal.' });
+      await replyUserError(interaction, { type: ErrorTypes.UNKNOWN, message: 'Не вдалося відкрити вікно видалення попередження.' });
     }
   }
 };
@@ -44,20 +45,20 @@ const warningClearAllHandler = {
       const [, targetUserId, originalModeratorId] = interaction.customId.split(':');
       
       if (interaction.user.id !== originalModeratorId) {
-        return await replyUserError(interaction, { type: ErrorTypes.PERMISSION, message: 'Only the moderator who viewed these warnings can clear them.' });
+        return await replyUserError(interaction, { type: ErrorTypes.PERMISSION, message: 'Лише модератор, який переглядав ці попередження, може очистити їх.' });
       }
 
       const targetUser = await client.users.fetch(targetUserId).catch(() => null);
-      const targetName = targetUser ? targetUser.username : 'this user';
+      const targetName = targetUser ? targetUser.username : 'цього користувача';
 
       const clearModal = new ModalBuilder()
         .setCustomId(`warning_clear_confirm_modal:${targetUserId}:${interaction.user.id}`)
-        .setTitle('Clear All Warnings')
+        .setTitle('Очистити всі попередження')
         .addComponents(
           new ActionRowBuilder().addComponents(
             new TextInputBuilder()
               .setCustomId('delete_confirmation')
-              .setLabel(`Type "DELETE" to clear all warnings`)
+              .setLabel(`Введіть "DELETE" для підтвердження`)
               .setStyle(TextInputStyle.Short)
               .setPlaceholder('DELETE')
               .setMaxLength(6)
@@ -69,7 +70,7 @@ const warningClearAllHandler = {
       await interaction.showModal(clearModal);
     } catch (error) {
       logger.error('Warning clear all button error:', error);
-      await replyUserError(interaction, { type: ErrorTypes.UNKNOWN, message: 'Failed to open confirmation modal.' });
+      await replyUserError(interaction, { type: ErrorTypes.UNKNOWN, message: 'Не вдалося відкрити вікно підтвердження.' });
     }
   }
 };
@@ -79,14 +80,14 @@ async function warningDeleteModalHandler(interaction, client) {
     const [, targetUserId, originalModeratorId] = interaction.customId.split(':');
     
     if (interaction.user.id !== originalModeratorId) {
-      return await replyUserError(interaction, { type: ErrorTypes.PERMISSION, message: 'Only the original moderator can delete warnings.' });
+      return await replyUserError(interaction, { type: ErrorTypes.PERMISSION, message: 'Лише модератор, який переглядав ці попередження, може видалити їх.' });
     }
 
     const warningNumberInput = interaction.fields.getTextInputValue('warning_number');
     const warningNumber = parseInt(warningNumberInput.replace('#', '').trim(), 10);
 
     if (isNaN(warningNumber) || warningNumber < 1) {
-      return await replyUserError(interaction, { type: ErrorTypes.VALIDATION, message: 'Please enter a valid warning number (e.g., 1, 2, 3).' });
+      return await replyUserError(interaction, { type: ErrorTypes.VALIDATION, message: 'Будь ласка, введіть дійсний номер попередження (наприклад, 1, 2, 3).' });
     }
 
     const deferSuccess = await InteractionHelper.safeDefer(interaction);
@@ -96,7 +97,7 @@ async function warningDeleteModalHandler(interaction, client) {
     const warnings = await WarningService.getWarnings(guildId, targetUserId);
 
     if (warningNumber > warnings.length) {
-      return await replyUserError(interaction, { type: ErrorTypes.USER_INPUT, message: 'Warning #${warningNumber} does not exist. This user only has ${warnings.length} warning(s).' });
+      return await replyUserError(interaction, { type: ErrorTypes.USER_INPUT, message: `Попередження #${warningNumber} не існує. У цього користувача лише ${warnings.length} попередження(ь).` });
     }
 
     const warningToDelete = warnings[warningNumber - 1];
@@ -107,7 +108,7 @@ async function warningDeleteModalHandler(interaction, client) {
     }
 
     const targetUser = await client.users.fetch(targetUserId).catch(() => null);
-    const targetName = targetUser ? targetUser.username : 'the user';
+    const targetName = targetUser ? targetUser.username : 'користувача';
 
     logger.info(`[MODERATION] Warning deleted for ${targetUserId} in ${guildId} by ${interaction.user.id}`, {
       warningId: warningToDelete.id,
@@ -116,11 +117,11 @@ async function warningDeleteModalHandler(interaction, client) {
     });
 
     await interaction.editReply({
-      embeds: [successEmbed('✅ Warning Deleted', `Warning #${warningNumber} for **${targetName}** has been deleted.\n\n**Reason was:** ${warningToDelete.reason.substring(0, 100)}`)]
+      embeds: [successEmbed(`Попередження #${warningNumber} для **${targetName}** було видалено.\n\n**Причина була:** ${warningToDelete.reason.substring(0, 100)}`, '✅ Попередження видалено')]
     });
   } catch (error) {
     logger.error('Warning delete modal handler error:', error);
-    await replyUserError(interaction, { type: ErrorTypes.UNKNOWN, message: 'Failed to delete warning.' });
+    await replyUserError(interaction, { type: ErrorTypes.UNKNOWN, message: 'Не вдалося видалити попередження.' });
   }
 }
 
@@ -129,13 +130,13 @@ async function warningClearConfirmModalHandler(interaction, client) {
     const [, targetUserId, originalModeratorId] = interaction.customId.split(':');
     
     if (interaction.user.id !== originalModeratorId) {
-      return await replyUserError(interaction, { type: ErrorTypes.PERMISSION, message: 'Only the original moderator can clear warnings.' });
+      return await replyUserError(interaction, { type: ErrorTypes.PERMISSION, message: 'Лише модератор, який переглядав ці попередження, може очистити їх.' });
     }
 
     const confirmation = interaction.fields.getTextInputValue('delete_confirmation').trim();
 
     if (confirmation !== 'DELETE') {
-      return await replyUserError(interaction, { type: ErrorTypes.UNKNOWN, message: 'You must type "DELETE" exactly to confirm clearing all warnings.' });
+      return await replyUserError(interaction, { type: ErrorTypes.UNKNOWN, message: 'Ви повинні ввести саме "DELETE" для підтвердження очищення всіх попереджень.' });
     }
 
     await interaction.deferReply({ flags: ['Ephemeral'] });
@@ -148,20 +149,16 @@ async function warningClearConfirmModalHandler(interaction, client) {
     }
 
     const targetUser = await client.users.fetch(targetUserId).catch(() => null);
-    const targetName = targetUser ? targetUser.username : 'the user';
+    const targetName = targetUser ? targetUser.username : 'користувача';
 
     logger.info(`[MODERATION] All warnings cleared for ${targetUserId} in ${guildId} by ${interaction.user.id}`);
 
     await interaction.editReply({
-      embeds: [successEmbed('✅ Warnings Cleared', `All warnings for **${targetName}** have been cleared. **${result.count}** warning(s) removed.`)]
+      embeds: [successEmbed(`Усі попередження для **${targetName}** були очищені. Вилучено **${result.count}** попередження(ь).`, '✅ Попередження очищено')]
     });
   } catch (error) {
     logger.error('Warning clear confirm modal handler error:', error);
-    if (!interaction.replied && !interaction.deferred) {
-      await replyUserError(interaction, { type: ErrorTypes.UNKNOWN, message: 'Failed to clear warnings.' });
-    } else {
-      await replyUserError(interaction, { type: ErrorTypes.UNKNOWN, message: 'Failed to clear warnings.' });
-    }
+    await replyUserError(interaction, { type: ErrorTypes.UNKNOWN, message: 'Не вдалося очистити попередження.' });
   }
 }
 

@@ -1,6 +1,7 @@
 import { SlashCommandBuilder, PermissionFlagsBits, ChannelType, MessageFlags } from 'discord.js';
 import { createEmbed, successEmbed, infoEmbed } from '../../utils/embeds.js';
 import { InteractionHelper } from '../../utils/interactionHelper.js';
+import { replyUserError, ErrorTypes } from '../../utils/errorHandler.js';
 import {
   getCountingGameConfig,
   activateCountingGame,
@@ -16,47 +17,47 @@ import { logger } from '../../utils/logger.js';
 export default {
   data: new SlashCommandBuilder()
     .setName('count')
-    .setDescription('Manage the server counting game')
+    .setDescription('Керувати грою в рахунок на сервері')
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild)
     .setDMPermission(false)
     .addSubcommand((subcommand) =>
       subcommand
         .setName('setup')
-        .setDescription('Start a counting game in a text channel')
+        .setDescription('Запустити гру в рахунок у текстовому каналі')
         .addChannelOption((option) =>
           option
             .setName('channel')
-            .setDescription('The channel where counting will take place')
+            .setDescription('Канал, де буде відбуватися рахунок')
             .setRequired(true)
             .addChannelTypes(ChannelType.GuildText),
         )
         .addStringOption((option) =>
           option
             .setName('system')
-            .setDescription('The counting system to use')
+            .setDescription('Система рахунку, яку використовувати')
             .setRequired(true)
             .addChoices(...getCountingSystemChoices()),
         ),
     )
     .addSubcommand((subcommand) =>
-      subcommand.setName('disable').setDescription('Disable the counting game for this server'),
+      subcommand.setName('disable').setDescription('Вимкнути гру в рахунок для цього сервера'),
     )
     .addSubcommand((subcommand) =>
-      subcommand.setName('status').setDescription('View current counting game status'),
+      subcommand.setName('status').setDescription('Переглянути поточний статус гри в рахунок'),
     )
     .addSubcommand((subcommand) =>
       subcommand
         .setName('reset')
-        .setDescription('Reset the current counting sequence')
+        .setDescription('Скинути поточну послідовність рахунку')
         .addIntegerOption((option) =>
           option
             .setName('start')
-            .setDescription('The number to start at after reset')
+            .setDescription('Число, з якого почати після скидання')
             .setMinValue(1),
         ),
     )
     .addSubcommand((subcommand) =>
-      subcommand.setName('leaderboard').setDescription('Show the counting game leaderboard'),
+      subcommand.setName('leaderboard').setDescription('Показати таблицю лідерів гри в рахунок'),
     ),
   category: 'Fun',
 
@@ -69,7 +70,7 @@ export default {
       }
 
       if (!interaction.memberPermissions?.has(PermissionFlagsBits.ManageGuild)) {
-        return await replyUserError(interaction, { type: ErrorTypes.PERMISSION, message: 'You need the **Manage Server** permission to use this command.' });
+        return await replyUserError(interaction, { type: ErrorTypes.PERMISSION, message: 'Вам потрібні права на **Керування сервером**, щоб використовувати цю команду.' });
       }
 
       const guildId = interaction.guildId;
@@ -80,19 +81,19 @@ export default {
         const channel = interaction.options.getChannel('channel');
         const system = interaction.options.getString('system');
         if (!channel || channel.type !== ChannelType.GuildText) {
-          return await replyUserError(interaction, { type: ErrorTypes.VALIDATION, message: 'Please choose a text channel for the counting game.' });
+          return await replyUserError(interaction, { type: ErrorTypes.VALIDATION, message: 'Будь ласка, оберіть текстовий канал для гри в рахунок.' });
         }
 
         if (config.enabled && config.channelId && config.channelId !== channel.id) {
-          return await replyUserError(interaction, { type: ErrorTypes.UNKNOWN, message: 'This server already has an active counting channel configured: <#${config.channelId}>. Disable the current counting game first, or use that existing channel.' });
+          return await replyUserError(interaction, { type: ErrorTypes.UNKNOWN, message: `Цей сервер вже має активний канал рахунку: <#${config.channelId}>. Спочатку вимкніть поточну гру або використовуйте цей канал.` });
         }
 
         await activateCountingGame(interaction.client, guildId, channel.id, system);
         return await InteractionHelper.safeEditReply(interaction, {
           embeds: [
             successEmbed(
-              'Counting Game Enabled',
-              `The counting game is now active in ${channel} using the **${getCountingSystemLabel(system)}** system. Players must count up from **1** and may not post two numbers in a row.`,
+              `Гра в рахунок тепер активна у ${channel} з використанням системи **${getCountingSystemLabel(system)}**. Гравці повинні рахувати починаючи з **1** і не можуть писати два числа поспіль.`,
+              'Гру в рахунок увімкнено',
             ),
           ],
         });
@@ -101,32 +102,32 @@ export default {
       if (subcommand === 'disable') {
         if (!config.enabled) {
           return await InteractionHelper.safeEditReply(interaction, {
-            embeds: [infoEmbed('Counting Game Disabled', 'The counting game is already disabled for this server.')],
+            embeds: [infoEmbed('Гру в рахунок вже вимкнено на цьому сервері.', 'Гру в рахунок вимкнено')],
           });
         }
 
         await disableCountingGame(interaction.client, guildId);
         return await InteractionHelper.safeEditReply(interaction, {
-          embeds: [successEmbed('Counting Game Disabled', 'The counting game has been disabled.')],
+          embeds: [successEmbed('Гру в рахунок було вимкнено.', 'Гру в рахунок вимкнено')],
         });
       }
 
       if (subcommand === 'status') {
         const fields = [
-          { name: 'Enabled', value: config.enabled ? 'Yes' : 'No', inline: true },
-          { name: 'Channel', value: config.channelId ? `<#${config.channelId}>` : 'Not configured', inline: true },
-          { name: 'System', value: getCountingSystemLabel(config.system), inline: true },
-          { name: 'Next count', value: getExpectedCountValue(config), inline: true },
-          { name: 'Current streak', value: `${config.currentStreak}`, inline: true },
-          { name: 'Best streak', value: `${config.bestStreak || 0}`, inline: true },
-          { name: 'Last counter', value: config.lastUserId ? `<@${config.lastUserId}>` : 'None', inline: true },
+          { name: 'Увімкнено', value: config.enabled ? 'Так' : 'Ні', inline: true },
+          { name: 'Канал', value: config.channelId ? `<#${config.channelId}>` : 'Не налаштовано', inline: true },
+          { name: 'Система', value: getCountingSystemLabel(config.system), inline: true },
+          { name: 'Наступне число', value: getExpectedCountValue(config), inline: true },
+          { name: 'Поточна серія', value: `${config.currentStreak}`, inline: true },
+          { name: 'Найкраща серія', value: `${config.bestStreak || 0}`, inline: true },
+          { name: 'Останній гравець', value: config.lastUserId ? `<@${config.lastUserId}>` : 'Немає', inline: true },
         ];
 
         return await InteractionHelper.safeEditReply(interaction, {
           embeds: [
             createEmbed({
-              title: 'Counting Game Status',
-              description: 'Overview of the currently configured counting game.',
+              title: 'Статус гри в рахунок',
+              description: 'Огляд поточної конфігурації гри в рахунок.',
               fields,
               color: 'primary',
             }),
@@ -136,7 +137,7 @@ export default {
 
       if (subcommand === 'reset') {
         if (!config.enabled) {
-          return await replyUserError(interaction, { type: ErrorTypes.UNKNOWN, message: 'Enable the counting game first with `/count setup`.' });
+          return await replyUserError(interaction, { type: ErrorTypes.UNKNOWN, message: 'Спочатку увімкніть гру в рахунок за допомогою `/count setup`.' });
         }
 
         const startNumber = interaction.options.getInteger('start') || 1;
@@ -145,8 +146,8 @@ export default {
         return await InteractionHelper.safeEditReply(interaction, {
           embeds: [
             successEmbed(
-              'Counting Game Reset',
-              `The counting sequence has been reset. Start again with **${startNumber}** in <#${config.channelId}>.`,
+              `Послідовність рахунку було скинуто. Почніть знову з **${startNumber}** у <#${config.channelId}>.`,
+              'Рахунок скинуто',
             ),
           ],
         });
@@ -158,18 +159,18 @@ export default {
         return await InteractionHelper.safeEditReply(interaction, {
           embeds: [
             createEmbed({
-              title: 'Counting Game Leaderboard',
-              description: leaderboard.length > 0 ? leaderboard.join('\n') : 'No counts have been recorded yet.',
+              title: 'Таблиця лідерів гри в рахунок',
+              description: leaderboard.length > 0 ? leaderboard.join('\n') : 'Користувачі ще не рахували.',
               color: 'primary',
             }),
           ],
         });
       }
 
-      return await replyUserError(interaction, { type: ErrorTypes.VALIDATION, message: 'Please choose a valid counting game action.' });
+      return await replyUserError(interaction, { type: ErrorTypes.VALIDATION, message: 'Будь ласка, оберіть дійсну дію гри в рахунок.' });
     } catch (error) {
       logger.error('Count command error:', error);
-      return await replyUserError(interaction, { type: ErrorTypes.UNKNOWN, message: 'Something went wrong while managing the counting game.' });
+      return await replyUserError(interaction, { type: ErrorTypes.UNKNOWN, message: 'Сталася помилка під час керування грою в рахунок.' });
     }
   },
 };

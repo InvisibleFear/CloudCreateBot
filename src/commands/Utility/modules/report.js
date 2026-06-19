@@ -3,7 +3,7 @@ import { getGuildConfig } from '../../../services/guildConfig.js';
 import { logEvent, EVENT_TYPES, resolveLogChannel } from '../../../services/loggingService.js';
 import { formatLogLine, resolveUserAuthor } from '../../../utils/logEmbeds.js';
 import { InteractionHelper } from '../../../utils/interactionHelper.js';
-import { handleInteractionError } from '../../../utils/errorHandler.js';
+import { handleInteractionError, replyUserError, ErrorTypes } from '../../../utils/errorHandler.js';
 import { logger } from '../../../utils/logger.js';
 
 export default {
@@ -22,13 +22,13 @@ export default {
         const reportChannelId = resolveLogChannel(guildConfig, 'reports');
 
         if (!reportChannelId) {
-            return await replyUserError(interaction, { type: ErrorTypes.UNKNOWN, message: 'The report channel has not been set up. Ask a moderator to use `/logging dashboard` or `/logging channel`.' });
+            return await replyUserError(interaction, { type: ErrorTypes.UNKNOWN, message: 'Канал для скарг не налаштовано. Попросіть модератора скористатися `/logging dashboard` або `/logging channel`.' });
         }
 
         try {
             const ownerMention = interaction.guild.ownerId
-                ? `<@${interaction.guild.ownerId}> New report!`
-                : 'New report!';
+                ? `<@${interaction.guild.ownerId}> Нова скарга!`
+                : 'Нова скарга!';
 
             await logEvent({
                 client,
@@ -36,13 +36,13 @@ export default {
                 eventType: EVENT_TYPES.REPORT_FILE,
                 content: ownerMention,
                 data: {
-                    title: 'User Report',
+                    title: 'Скарга на користувача',
                     lines: [
-                        formatLogLine('Reported User', `${targetUser.tag} (\`${targetUser.id}\`)`),
-                        formatLogLine('Reported By', `${interaction.user.tag} (\`${interaction.user.id}\`)`),
-                        formatLogLine('Channel', interaction.channel.toString()),
+                        formatLogLine('Порушник', `${targetUser.tag} (\`${targetUser.id}\`)`),
+                        formatLogLine('Автор скарги', `${interaction.user.tag} (\`${interaction.user.id}\`)`),
+                        formatLogLine('Канал', interaction.channel.toString()),
                     ],
-                    blockFields: [{ name: 'Reason', value: reason }],
+                    blockFields: [{ name: 'Причина', value: reason }],
                     author: await resolveUserAuthor(client, targetUser.id),
                     thumbnail: targetUser.displayAvatarURL(),
                 },
@@ -50,8 +50,8 @@ export default {
 
             await InteractionHelper.safeEditReply(interaction, {
                 embeds: [createEmbed({
-                    title: 'Report Submitted',
-                    description: `Your report against **${targetUser.tag}** has been successfully filed and sent to the moderation team. Thank you!`,
+                    title: 'Скаргу надіслано',
+                    description: `Вашу скаргу на **${targetUser.tag}** успішно зареєстровано та надіслано команді модерації. Дякуємо!`,
                 })],
             });
 

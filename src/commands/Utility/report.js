@@ -1,6 +1,6 @@
 import { SlashCommandBuilder, ChannelType } from 'discord.js';
 import { logger } from '../../utils/logger.js';
-import { handleInteractionError } from '../../utils/errorHandler.js';
+import { handleInteractionError, replyUserError, ErrorTypes } from '../../utils/errorHandler.js';
 import { InteractionHelper } from '../../utils/interactionHelper.js';
 
 import report from './modules/report.js';
@@ -9,22 +9,22 @@ import reportSetchannel from './modules/report_setchannel.js';
 export default {
     data: new SlashCommandBuilder()
         .setName('report')
-        .setDescription('Report a user to server staff, or configure where reports are sent.')
+        .setDescription('Повідомити про порушника адміністрації або налаштувати канал для скарг.')
         .setDMPermission(false)
         .addSubcommand(subcommand =>
             subcommand
                 .setName('file')
-                .setDescription('Report a user to the server moderation team.')
+                .setDescription('Подати скаргу на користувача команді модерації сервера.')
                 .addUserOption(option =>
                     option
                         .setName('user')
-                        .setDescription('The user you want to report.')
+                        .setDescription('Користувач, на якого ви скаржитесь.')
                         .setRequired(true),
                 )
                 .addStringOption(option =>
                     option
                         .setName('reason')
-                        .setDescription('The reason for the report (be detailed).')
+                        .setDescription('Причина скарги (будьте детальні).')
                         .setRequired(true)
                         .setMaxLength(500),
                 ),
@@ -32,11 +32,11 @@ export default {
         .addSubcommand(subcommand =>
             subcommand
                 .setName('setchannel')
-                .setDescription('Set the channel where user reports are sent. (Manage Server required)')
+                .setDescription('Встановити канал, куди надсилатимуться скарги. (Потрібне Керування сервером)')
                 .addChannelOption(option =>
                     option
                         .setName('channel')
-                        .setDescription('The text channel to receive reports.')
+                        .setDescription('Текстовий канал для отримання скарг.')
                         .addChannelTypes(ChannelType.GuildText)
                         .setRequired(true),
                 ),
@@ -55,7 +55,7 @@ export default {
                 return await reportSetchannel.execute(interaction, config, client);
             }
 
-            return await replyUserError(interaction, { type: ErrorTypes.UNKNOWN, message: 'Unknown subcommand.' });
+            return await replyUserError(interaction, { type: ErrorTypes.UNKNOWN, message: 'Невідома підкоманда.' });
         } catch (error) {
             logger.error('report command error:', error);
             await handleInteractionError(interaction, error, { commandName: 'report', source: 'report_command' });

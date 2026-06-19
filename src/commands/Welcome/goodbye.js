@@ -8,28 +8,28 @@ import { InteractionHelper } from '../../utils/interactionHelper.js';
 export default {
     data: new SlashCommandBuilder()
         .setName('goodbye')
-        .setDescription('Configure the goodbye message system')
+        .setDescription('Налаштувати систему прощальних повідомлень')
         .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild)
         .addSubcommand(subcommand =>
             subcommand
                 .setName('setup')
-                .setDescription('Set up the goodbye message')
+                .setDescription('Налаштувати прощальне повідомлення')
                 .addChannelOption(option =>
                     option.setName('channel')
-                        .setDescription('The channel to send goodbye messages to')
+                        .setDescription('Канал для надсилання прощальних повідомлень')
                         .addChannelTypes(ChannelType.GuildText)
                         .setRequired(true))
                 .addStringOption(option =>
                     option.setName('message')
-                        .setDescription('Goodbye message. Variables: {user}, {username}, {server}, {memberCount}')
+                        .setDescription('Прощальне повідомлення. Змінні: {user}, {username}, {server}, {memberCount}')
                         .setRequired(true))
                 .addStringOption(option =>
                     option.setName('image')
-                        .setDescription('URL of the image to include in the goodbye message')
+                        .setDescription('URL-адреса зображення для прощального повідомлення')
                         .setRequired(false))
                 .addBooleanOption(option =>
                     option.setName('ping')
-                        .setDescription('Whether to ping the user in the goodbye message')
+                        .setDescription('Чи згадувати користувача у прощальному повідомленні')
                         .setRequired(false))),
 
     async execute(interaction) {
@@ -46,7 +46,7 @@ export default {
         const { options, guild, client } = interaction;
 
         if (!interaction.memberPermissions?.has(PermissionFlagsBits.ManageGuild)) {
-            return await replyUserError(interaction, { type: ErrorTypes.PERMISSION, message: 'You need the **Manage Server** permission to use `/goodbye`.' });
+            return await replyUserError(interaction, { type: ErrorTypes.PERMISSION, message: 'Вам потрібні права на **Керування сервером**, щоб використовувати `/goodbye`.' });
         }
 
         const subcommand = options.getSubcommand();
@@ -60,12 +60,12 @@ export default {
             const existingConfig = await getWelcomeConfig(client, guild.id);
             if (existingConfig?.goodbyeChannelId) {
                 logger.info(`[Goodbye] Setup blocked because config already exists in channel ${existingConfig.goodbyeChannelId} for guild ${guild.id}`);
-                return await replyUserError(interaction, { type: ErrorTypes.UNKNOWN, message: 'Goodbye is already configured for <#${existingConfig.goodbyeChannelId}>. Use **/goodbye config** to customize channel, message, ping, or image.' });
+                return await replyUserError(interaction, { type: ErrorTypes.UNKNOWN, message: `Прощання вже налаштовано для <#${existingConfig.goodbyeChannelId}>. Використовуйте **/goodbye config**, щоб змінити канал, повідомлення, згадку чи зображення.` });
             }
 
             if (!message || message.trim().length === 0) {
                 logger.warn(`[Goodbye] Empty message provided by ${interaction.user.tag} in ${guild.name}`);
-                return await replyUserError(interaction, { type: ErrorTypes.VALIDATION, message: 'Goodbye message cannot be empty' });
+                return await replyUserError(interaction, { type: ErrorTypes.VALIDATION, message: 'Прощальне повідомлення не може бути порожнім' });
             }
 
             if (image) {
@@ -73,7 +73,7 @@ export default {
                     new URL(image);
                 } catch (e) {
                     logger.warn(`[Goodbye] Invalid image URL provided by ${interaction.user.tag}: ${image}`);
-                    return await replyUserError(interaction, { type: ErrorTypes.VALIDATION, message: 'Please provide a valid image URL (must start with http:// or https://' });
+                    return await replyUserError(interaction, { type: ErrorTypes.VALIDATION, message: 'Будь ласка, вкажіть дійсну URL-адресу зображення (має починатися з http:// або https://)' });
                 }
             }
 
@@ -84,10 +84,10 @@ export default {
                     leaveMessage: message,
                     goodbyePing: ping,
                     leaveEmbed: {
-                        title: "Goodbye {user.tag}",
+                        title: "Прощавай, {user.tag}",
                         description: message,
                         color: getColor('error'),
-                        footer: `Goodbye from ${guild.name}!`,
+                        footer: `Прощавай від ${guild.name}!`,
                         ...(image && { image: { url: image } })
                     }
                 });
@@ -101,14 +101,14 @@ export default {
 
                 const embed = new EmbedBuilder()
                     .setColor(getColor('success'))
-                    .setTitle('Goodbye System Configured')
-                    .setDescription(`Goodbye messages will now be sent to ${channel}`)
+                    .setTitle('Система прощальних повідомлень налаштована')
+                    .setDescription(`Прощальні повідомлення тепер надсилатимуться до ${channel}`)
                     .addFields(
-                        { name: 'Message Preview', value: previewMessage },
-                        { name: 'Ping User', value: ping ? 'Yes' : 'No' },
-                        { name: 'Status', value: 'Enabled' }
+                        { name: 'Попередній перегляд повідомлення', value: previewMessage },
+                        { name: 'Згадувати користувача', value: ping ? 'Так' : 'Ні' },
+                        { name: 'Статус', value: 'Увімкнено' }
                     )
-                    .setFooter({ text: 'Tip: Use /goodbye config to customize goodbye settings' });
+                    .setFooter({ text: 'Підказка: використовуйте /goodbye config, щоб змінити налаштування прощань' });
 
                 if (image) {
                     embed.setImage(image);
@@ -117,7 +117,7 @@ export default {
                 await InteractionHelper.safeEditReply(interaction, { embeds: [embed] });
             } catch (error) {
                 logger.error(`[Goodbye] Failed to setup goodbye system for guild ${guild.id}:`, error);
-                await replyUserError(interaction, { type: ErrorTypes.UNKNOWN, message: 'An error occurred while configuring the goodbye system. Please try again.' });
+                await replyUserError(interaction, { type: ErrorTypes.UNKNOWN, message: 'Сталася помилка під час налаштування системи прощальних повідомлень. Будь ласка, спробуйте ще раз.' });
             }
         }
     },

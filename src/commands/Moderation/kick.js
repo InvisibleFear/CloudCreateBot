@@ -8,15 +8,15 @@ import { handleInteractionError, CLoudCreateError, ErrorTypes } from '../../util
 export default {
     data: new SlashCommandBuilder()
     .setName("kick")
-    .setDescription("Kick a user from the server")
+    .setDescription("Кікнути (вигнати) користувача з сервера")
     .addUserOption((option) =>
       option
         .setName("target")
-        .setDescription("The user to kick")
+        .setDescription("Користувач, якого потрібно вигнати")
         .setRequired(true),
     )
     .addStringOption((option) =>
-      option.setName("reason").setDescription("Reason for the kick"),
+      option.setName("reason").setDescription("Причина вигнання"),
     )
 .setDefaultMemberPermissions(PermissionFlagsBits.KickMembers),
   category: "moderation",
@@ -27,19 +27,19 @@ export default {
         throw new CLoudCreateError(
           "User lacks permission",
           ErrorTypes.PERMISSION,
-          "You do not have permission to kick members."
+          "Ви не маєте дозволу на вигнання учасників."
         );
       }
 
       const targetUser = interaction.options.getUser("target");
       const member = interaction.options.getMember("target");
-      const reason = interaction.options.getString("reason") || "No reason provided";
+      const reason = interaction.options.getString("reason") || "Причину не вказано";
 
       if (!targetUser) {
         throw new CLoudCreateError(
           'Missing target user',
           ErrorTypes.USER_INPUT,
-          'You must specify a user to kick.',
+          'Ви повинні вказати користувача, якого потрібно вигнати.',
           { subtype: 'invalid_user' },
         );
       }
@@ -48,7 +48,7 @@ export default {
         throw new CLoudCreateError(
           "Cannot kick self",
           ErrorTypes.VALIDATION,
-          "You cannot kick yourself."
+          "Ви не можете вигнати самого себе."
         );
       }
 
@@ -56,7 +56,7 @@ export default {
         throw new CLoudCreateError(
           "Cannot kick bot",
           ErrorTypes.VALIDATION,
-          "You cannot kick the bot."
+          "Ви не можете вигнати бота."
         );
       }
 
@@ -64,7 +64,7 @@ export default {
         throw new CLoudCreateError(
           "Target not found",
           ErrorTypes.USER_INPUT,
-          "The target user is not currently in this server.",
+          "Користувача не знайдено на цьому сервері.",
           { subtype: 'user_not_found' }
         );
       }
@@ -79,8 +79,8 @@ export default {
       await InteractionHelper.universalReply(interaction, {
         embeds: [
           successEmbed(
-            `👢 **Kicked** ${targetUser.tag}`,
-            `**Reason:** ${reason}\n**Case ID:** #${result.caseId}`,
+            `**Причина:** ${reason}\n**Номер кейсу:** #${result.caseId}`,
+            `👢 Вигнано користувача ${targetUser.tag}`,
           ),
         ],
       });

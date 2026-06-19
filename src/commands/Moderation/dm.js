@@ -8,23 +8,23 @@ import { InteractionHelper } from '../../utils/interactionHelper.js';
 export default {
     data: new SlashCommandBuilder()
         .setName("dm")
-        .setDescription("Send a direct message to a user (Staff only)")
+        .setDescription("Надіслати особисте повідомлення користувачу (тільки для персоналу)")
         .addUserOption(option =>
             option
                 .setName("user")
-                .setDescription("The user to send a DM to")
+                .setDescription("Користувач, якому надіслати ПП")
                 .setRequired(true)
         )
         .addStringOption(option =>
             option
                 .setName("message")
-                .setDescription("The message to send")
+                .setDescription("Текст повідомлення")
                 .setRequired(true)
         )
         .addBooleanOption(option =>
             option
                 .setName("anonymous")
-                .setDescription("Send the message anonymously (default: false)")
+                .setDescription("Надіслати анонімно (за замовчуванням: ні)")
                 .setRequired(false)
         )
         .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers)
@@ -34,7 +34,7 @@ export default {
     async execute(interaction, config, client) {
         const deferSuccess = await InteractionHelper.safeDefer(interaction);
         if (!deferSuccess) {
-            logger.warn(`DM interaction defer failed`, {
+            logger.warn(`Помилка відкладення взаємодії dm`, {
                 userId: interaction.user.id,
                 guildId: interaction.guildId,
                 commandName: 'dm'
@@ -49,11 +49,11 @@ export default {
         try {
             
             if (message.length > 2000) {
-                return await replyUserError(interaction, { type: ErrorTypes.UNKNOWN, message: 'Messages must be under 2000 characters.' });
+                return await replyUserError(interaction, { type: ErrorTypes.UNKNOWN, message: 'Повідомлення не може перевищувати 2000 символів.' });
             }
 
             if (targetUser.bot) {
-                return await replyUserError(interaction, { type: ErrorTypes.UNKNOWN, message: 'You cannot send DMs to bot accounts.' });
+                return await replyUserError(interaction, { type: ErrorTypes.UNKNOWN, message: 'Не можна надсилати ПП ботам.' });
             }
 
             const sanitized = sanitizeMarkdown(message);
@@ -63,10 +63,10 @@ export default {
             await dmChannel.send({
                 embeds: [
                     successEmbed(
-                        anonymous ? "Message from the Staff Team" : `Message from ${interaction.user.tag}`,
+                        anonymous ? "Повідомлення від команди персоналу" : `Повідомлення від ${interaction.user.tag}`,
                         sanitized
                     ).setFooter({
-                        text: `You cannot reply to this message. | Logger ID: ${interaction.id}`
+                        text: `Ви не можете відповісти на це повідомлення. | ID журналу: ${interaction.id}`
                     })
                 ]
             });
@@ -75,10 +75,10 @@ export default {
                 client: interaction.client,
                 guild: interaction.guild,
                 event: {
-                    action: "DM Sent",
+                    action: "ПП надіслано",
                     target: `${targetUser.tag} (${targetUser.id})`,
                     executor: `${interaction.user.tag} (${interaction.user.id})`,
-                    reason: `Anonymous: ${anonymous ? 'Yes' : 'No'}`,
+                    reason: `Анонімно: ${anonymous ? 'Так' : 'Ні'}`,
                     metadata: {
                         userId: targetUser.id,
                         moderatorId: interaction.user.id,
@@ -91,19 +91,19 @@ export default {
             return await InteractionHelper.safeEditReply(interaction, {
                 embeds: [
                     successEmbed(
-                        "DM Sent",
-                        `Successfully sent a message to ${targetUser.tag}`
+                        "✅ ПП надіслано",
+                        `Повідомлення успішно надіслано ${targetUser.tag}`
                     ),
                 ],
             });
         } catch (error) {
-            logger.error('DM command error:', error);
+            logger.error('Помилка команди dm:', error);
             
 if (error.code === 50007) {
-                return await replyUserError(interaction, { type: ErrorTypes.UNKNOWN, message: 'Could not send a DM to ${targetUser.tag}. They may have DMs disabled.' });
+                return await replyUserError(interaction, { type: ErrorTypes.UNKNOWN, message: `Не вдалося надіслати ПП ${targetUser.tag}. Можливо, у них вимкнено особисті повідомлення.` });
             }
             
-            return await replyUserError(interaction, { type: ErrorTypes.UNKNOWN, message: 'Failed to send DM: ${error.message}' });
+            return await replyUserError(interaction, { type: ErrorTypes.UNKNOWN, message: `Не вдалося надіслати ПП: ${error.message}` });
         }
     }
 };

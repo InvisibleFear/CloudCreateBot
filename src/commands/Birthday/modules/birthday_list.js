@@ -17,8 +17,8 @@ export default {
             if (sortedBirthdays.length === 0) {
                 const embed = new EmbedBuilder()
                     .setColor(0xFF0000)
-                    .setTitle('No Birthdays')
-                    .setDescription('No birthdays have been set in this server yet.');
+                    .setTitle('Немає днів народження')
+                    .setDescription('На цьому сервері ще не додано жодного дня народження.');
                 return await InteractionHelper.safeEditReply(interaction, {
                     embeds: [embed]
                 });
@@ -37,7 +37,7 @@ export default {
                     continue;
                 }
                 displayIndex++;
-                birthdayList += `${displayIndex}. <@${birthday.userId}> - ${birthday.monthName} ${birthday.day}\n`;
+                birthdayList += `${displayIndex}. <@${birthday.userId}> — ${birthday.monthName} ${birthday.day}\n`;
             }
 
             if (fetchedMembers && staleUserIds.length > 0) {
@@ -49,25 +49,25 @@ export default {
             if (displayIndex === 0) {
                 const embed = new EmbedBuilder()
                     .setColor(0xFF0000)
-                    .setTitle('No Birthdays')
-                    .setDescription('No birthdays have been set by current server members.');
+                    .setTitle('Немає днів народження')
+                    .setDescription('Жоден поточний учасник сервера не вказав день народження.');
                 return await InteractionHelper.safeEditReply(interaction, {
                     embeds: [embed]
                 });
             }
 
-            birthdayList = `**${displayIndex} birthday${displayIndex !== 1 ? 's' : ''} in ${interaction.guild.name}**\n\n` + birthdayList;
+            birthdayList = `**${displayIndex} ${displayIndex === 1 ? 'день народження' : 'днів народження'} на ${interaction.guild.name}**\n\n` + birthdayList;
 
             const embed = new EmbedBuilder()
                 .setColor(0x00FF00)
-                .setTitle('Server Birthdays')
-                .setDescription(`${birthdayList}\n\nTotal: ${displayIndex} birthday${displayIndex !== 1 ? 's' : ''}`);
+                .setTitle('🎂 Дні народження сервера')
+                .setDescription(`${birthdayList}\n\nВсього: ${displayIndex} ${displayIndex === 1 ? 'день народження' : 'днів народження'}`);
 
             await InteractionHelper.safeEditReply(interaction, {
                 embeds: [embed]
             });
             
-            logger.info('Birthday list retrieved successfully', {
+            logger.info('Список днів народження успішно отримано', {
                 userId: interaction.user.id,
                 guildId,
                 birthdayCount: displayIndex,
@@ -75,7 +75,7 @@ export default {
                 commandName: 'birthday_list'
             });
         } catch (error) {
-            logger.error("Birthday list command execution failed", {
+            logger.error("Помилка виконання birthday list", {
                 error: error.message,
                 stack: error.stack,
                 userId: interaction.user.id,

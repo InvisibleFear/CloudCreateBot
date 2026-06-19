@@ -17,22 +17,22 @@ export default {
             if (result.success) {
                 const embed = new EmbedBuilder()
                     .setColor(0x00FF00)
-                    .setTitle('Birthday Removed')
-                    .setDescription('Your birthday has been successfully removed from the server.');
+                    .setTitle('День народження видалено')
+                    .setDescription('Ваш день народження успішно видалено з сервера.');
                 await InteractionHelper.safeEditReply(interaction, {
                     embeds: [embed]
                 });
             } else if (result.notFound) {
                 const embed = new EmbedBuilder()
                     .setColor(0xFF0000)
-                    .setTitle('No Birthday Found')
-                    .setDescription('You don\'t have a birthday set to remove.');
+                    .setTitle('День народження не знайдено')
+                    .setDescription('У вас не встановлено день народження, який можна видалити.');
                 await InteractionHelper.safeEditReply(interaction, {
                     embeds: [embed]
                 });
             }
         } catch (error) {
-            logger.error("Birthday remove command execution failed", {
+            logger.error("Помилка виконання birthday remove", {
                 error: error.message,
                 stack: error.stack,
                 userId: interaction.user.id,

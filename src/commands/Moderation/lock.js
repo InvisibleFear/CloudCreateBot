@@ -9,7 +9,7 @@ export default {
     data: new SlashCommandBuilder()
     .setName("lock")
     .setDescription(
-      "Locks the current channel (prevents @everyone from sending messages).",
+      "Заблокувати поточний канал (заборонити @everyone надсилати повідомлення).",
     )
 .setDefaultMemberPermissions(PermissionFlagsBits.ManageChannels),
   category: "moderation",
@@ -17,7 +17,7 @@ export default {
   async execute(interaction, config, client) {
     const deferSuccess = await InteractionHelper.safeDefer(interaction);
     if (!deferSuccess) {
-      logger.warn(`Lock interaction defer failed`, {
+      logger.warn(`Помилка відкладення взаємодії lock`, {
         userId: interaction.user.id,
         guildId: interaction.guildId,
         commandName: 'lock'
@@ -26,7 +26,7 @@ export default {
     }
 
     if (!interaction.member.permissions.has(PermissionFlagsBits.ManageChannels))
-      return await replyUserError(interaction, { type: ErrorTypes.PERMISSION, message: 'You need the `Manage Channels` permission to lock channels.' });
+      return await replyUserError(interaction, { type: ErrorTypes.PERMISSION, message: 'Вам потрібне право `Керування каналами` для блокування каналів.' });
 
     const channel = interaction.channel;
     const everyoneRole = interaction.guild.roles.everyone;
@@ -34,24 +34,24 @@ export default {
     try {
       const currentPermissions = channel.permissionsFor(everyoneRole);
       if (currentPermissions.has(PermissionFlagsBits.SendMessages) === false) {
-        return await replyUserError(interaction, { type: ErrorTypes.UNKNOWN, message: '${channel} is already locked.' });
+        return await replyUserError(interaction, { type: ErrorTypes.UNKNOWN, message: `${channel} вже заблоковано.` });
       }
 
       await channel.permissionOverwrites.edit(
         everyoneRole,
         { SendMessages: false },
-{ type: 0, reason: `Channel locked by ${interaction.user.tag}` },
+{ type: 0, reason: `Канал заблоковано модератором ${interaction.user.tag}` },
       );
 
       const lockEmbed = createEmbed(
-        "🔒 Channel Locked (Action Log)",
-        `${channel} has been locked down by ${interaction.user}.`,
+        "🔒 Канал заблоковано (журнал дій)",
+        `${channel} було заблоковано модератором ${interaction.user}.`,
       )
 .setColor(getColor('moderation'))
         .addFields(
-          { name: "Channel", value: channel.toString(), inline: true },
+          { name: "Канал", value: channel.toString(), inline: true },
           {
-            name: "Moderator",
+            name: "Модератор",
             value: `${interaction.user.tag} (${interaction.user.id})`,
             inline: true,
           },
@@ -61,12 +61,12 @@ export default {
         client,
         guild: interaction.guild,
         event: {
-          action: "Channel Locked",
+          action: "Канал заблоковано",
           target: channel.toString(),
           executor: `${interaction.user.tag} (${interaction.user.id})`,
           metadata: {
             channelId: channel.id,
-            category: channel.parent?.name || 'None',
+            category: channel.parent?.name || 'Немає',
             moderatorId: interaction.user.id
           }
         }
@@ -75,14 +75,14 @@ export default {
       await InteractionHelper.safeEditReply(interaction, {
         embeds: [
           successEmbed(
-            `🔒 **Channel Locked**`,
-            `${channel} is now locked down. No one can speak here now.`,
+            `🔒 **Канал заблоковано**`,
+            `${channel} тепер заблоковано. Ніхто не може писати тут.`,
           ),
         ],
       });
     } catch (error) {
-      logger.error('Lock command error:', error);
-      await replyUserError(interaction, { type: ErrorTypes.PERMISSION, message: 'An unexpected error occurred while trying to lock the channel. Check my permissions (I need \'Manage Channels\').' });
+      logger.error('Помилка команди lock:', error);
+      await replyUserError(interaction, { type: ErrorTypes.PERMISSION, message: "Під час блокування каналу виникла помилка. Перевірте мої права (потрібне 'Керування каналами')." });
     }
   }
 };

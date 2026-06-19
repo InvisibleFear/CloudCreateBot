@@ -18,14 +18,14 @@ export default {
             
             const embed = new EmbedBuilder()
                 .setColor(0x00FF00)
-                .setTitle('Birthday Set!')
-                .setDescription(`Your birthday has been set to **${result.data.monthName} ${result.data.day}**!`);
+                .setTitle('🎂 День народження встановлено!')
+                .setDescription(`Ваш день народження встановлено на **${result.data.monthName} ${result.data.day}**!`);
             
             await InteractionHelper.safeEditReply(interaction, {
                 embeds: [embed]
             });
         } catch (error) {
-            logger.error("Birthday set command execution failed", {
+            logger.error("Помилка виконання birthday set", {
                 error: error.message,
                 stack: error.stack,
                 userId: interaction.user.id,

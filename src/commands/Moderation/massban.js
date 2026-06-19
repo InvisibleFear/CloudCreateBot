@@ -9,22 +9,22 @@ import { InteractionHelper } from '../../utils/interactionHelper.js';
 export default {
     data: new SlashCommandBuilder()
         .setName("massban")
-        .setDescription("Ban multiple users from the server at once")
+        .setDescription("Заблокувати кількох користувачів на сервері одночасно")
         .addStringOption(option =>
             option
                 .setName("users")
-                .setDescription("User IDs or mentions to ban (separated by spaces or commas)")
+                .setDescription("ID або згадки користувачів для блокування (розділені пробілами або комами)")
                 .setRequired(true)
         )
         .addStringOption(option =>
             option.setName("reason")
-                .setDescription("Reason for the mass ban")
+                .setDescription("Причина масового блокування")
                 .setRequired(false)
         )
         .addIntegerOption(option =>
             option
                 .setName("delete_days")
-                .setDescription("Number of days of messages to delete (0-7)")
+                .setDescription("Кількість днів повідомлень для видалення (0-7)")
                 .setMinValue(0)
                 .setMaxValue(7)
                 .setRequired(false)
@@ -36,7 +36,7 @@ export default {
     async execute(interaction, config, client) {
         const deferSuccess = await InteractionHelper.safeDefer(interaction);
         if (!deferSuccess) {
-            logger.warn(`Massban interaction defer failed`, {
+            logger.warn(`Помилка відкладення взаємодії massban`, {
                 userId: interaction.user.id,
                 guildId: interaction.guildId,
                 commandName: 'massban'
@@ -45,11 +45,11 @@ export default {
         }
 
         if (!interaction.member.permissions.has(PermissionFlagsBits.BanMembers)) {
-            return await replyUserError(interaction, { type: ErrorTypes.PERMISSION, message: 'You do not have permission to ban members.' });
+            return await replyUserError(interaction, { type: ErrorTypes.PERMISSION, message: 'У вас немає права блокувати учасників.' });
         }
 
         const usersInput = interaction.options.getString("users");
-        const reason = interaction.options.getString("reason") || "Mass ban - No reason provided";
+        const reason = interaction.options.getString("reason") || "Масове блокування — причина не вказана";
         const deleteDays = interaction.options.getInteger("delete_days") || 0;
 
         try {
@@ -60,15 +60,15 @@ export default {
 .slice(0, 20);
 
             if (userIds.length === 0) {
-                return await replyUserError(interaction, { type: ErrorTypes.VALIDATION, message: 'Please provide valid user IDs or mentions. Maximum 20 users at once.' });
+                return await replyUserError(interaction, { type: ErrorTypes.VALIDATION, message: 'Вкажіть дійсні ID або згадки користувачів. Максимум 20 користувачів одночасно.' });
             }
 
             if (userIds.includes(interaction.user.id)) {
-                return await replyUserError(interaction, { type: ErrorTypes.UNKNOWN, message: 'You cannot include yourself in a mass ban.' });
+                return await replyUserError(interaction, { type: ErrorTypes.UNKNOWN, message: 'Ви не можете включити себе до масового блокування.' });
             }
 
             if (userIds.includes(client.user.id)) {
-                return await replyUserError(interaction, { type: ErrorTypes.UNKNOWN, message: 'You cannot include the bot in a mass ban.' });
+                return await replyUserError(interaction, { type: ErrorTypes.UNKNOWN, message: 'Ви не можете включити бота до масового блокування.' });
             }
 
             const results = {
@@ -82,7 +82,7 @@ export default {
                     const user = await client.users.fetch(userId).catch(() => null);
                     
                     if (!user) {
-                        results.failed.push({ userId, reason: "User not found" });
+                        results.failed.push({ userId, reason: "Користувача не знайдено" });
                         continue;
                     }
 
@@ -124,10 +124,10 @@ export default {
                         client,
                         guild: interaction.guild,
                         event: {
-                            action: "Member Banned",
+                            action: "Учасника заблоковано",
                             target: `${user.tag} (${user.id})`,
                             executor: `${interaction.user.tag} (${interaction.user.id})`,
-                            reason: `${reason} (Mass Ban)`,
+                            reason: `${reason} (Масове блокування)`,
                             metadata: {
                                 userId: user.id,
                                 moderatorId: interaction.user.id,
@@ -138,10 +138,10 @@ export default {
                     });
 
                 } catch (error) {
-                    logger.error(`Failed to ban user ${userId}:`, error);
+                    logger.error(`Не вдалося заблокувати користувача ${userId}:`, error);
                     const reason = error instanceof CLoudCreateError
                         ? (error.userMessage || error.message)
-                        : (error.message || "Unknown error");
+                        : (error.message || "Невідома помилка");
                     results.failed.push({ 
                         userId, 
                         reason,
@@ -149,10 +149,10 @@ export default {
                 }
             }
 
-            let description = `**Mass Ban Results:**\n\n`;
+            let description = `**Результати масового блокування:**\n\n`;
             
             if (results.successful.length > 0) {
-                description += `✅ **Successfully Banned (${results.successful.length}):**\n`;
+                description += `✅ **Успішно заблоковано (${results.successful.length}):**\n`;
                 results.successful.forEach(result => {
                     description += `• ${result.user} (${result.userId})\n`;
                 });
@@ -160,17 +160,17 @@ export default {
             }
 
             if (results.skipped.length > 0) {
-                description += `⚠️ **Skipped (${results.skipped.length}):**\n`;
+                description += `⚠️ **Пропущено (${results.skipped.length}):**\n`;
                 results.skipped.forEach(result => {
-                    description += `• ${result.user} - ${result.reason}\n`;
+                    description += `• ${result.user} — ${result.reason}\n`;
                 });
                 description += '\n';
             }
 
             if (results.failed.length > 0) {
-                description += `❌ **Failed (${results.failed.length}):**\n`;
+                description += `❌ **Не вдалося (${results.failed.length}):**\n`;
                 results.failed.forEach(result => {
-                    description += `• ${result.userId} - ${result.reason}\n`;
+                    description += `• ${result.userId} — ${result.reason}\n`;
                 });
             }
 
@@ -179,15 +179,15 @@ export default {
             return await InteractionHelper.safeEditReply(interaction, {
                 embeds: [
                     embed(
-                        `🔨 Mass Ban Completed`,
+                        `🔨 Масове блокування завершено`,
                         description
                     )
                 ]
             });
 
         } catch (error) {
-            logger.error("Error in massban command:", error);
-            return await replyUserError(interaction, { type: ErrorTypes.UNKNOWN, message: 'An error occurred while processing the mass ban. Please try again later.' });
+            logger.error("Помилка команди massban:", error);
+            return await replyUserError(interaction, { type: ErrorTypes.UNKNOWN, message: 'Під час масового блокування виникла помилка. Спробуйте ще раз.' });
         }
     }
 };

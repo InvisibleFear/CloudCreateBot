@@ -8,15 +8,15 @@ import { handleInteractionError, CLoudCreateError, ErrorTypes } from '../../util
 export default {
     data: new SlashCommandBuilder()
         .setName("ban")
-        .setDescription("Ban a user from the server")
+        .setDescription("Заблокувати користувача на сервері")
         .addUserOption((option) =>
             option
                 .setName("target")
-                .setDescription("The user to ban")
+                .setDescription("Користувач для блокування")
                 .setRequired(true),
         )
         .addStringOption((option) =>
-            option.setName("reason").setDescription("Reason for the ban"),
+            option.setName("reason").setDescription("Причина блокування"),
         )
 .setDefaultMemberPermissions(PermissionFlagsBits.BanMembers),
     category: "moderation",
@@ -24,22 +24,22 @@ export default {
     async execute(interaction, config, client) {
         try {
             const user = interaction.options.getUser("target");
-            const reason = interaction.options.getString("reason") || "No reason provided";
+            const reason = interaction.options.getString("reason") || "Причина не вказана";
 
             if (!user) {
                 throw new CLoudCreateError(
                     'Missing target user',
                     ErrorTypes.USER_INPUT,
-                    'You must specify a user to ban.',
+                    'Ви повинні вказати користувача для блокування.',
                     { subtype: 'invalid_user' },
                 );
             }
 
             if (user.id === interaction.user.id) {
-                throw new Error("You cannot ban yourself.");
+                throw new Error("Ви не можете заблокувати себе.");
             }
             if (user.id === client.user.id) {
-                throw new Error("You cannot ban the bot.");
+                throw new Error("Ви не можете заблокувати бота.");
             }
 
             const result = await ModerationService.banUser({
@@ -52,13 +52,13 @@ export default {
             await InteractionHelper.universalReply(interaction, {
                 embeds: [
                     successEmbed(
-                        `🚫 **Banned** ${user.tag}`,
-                        `**Reason:** ${reason}\n**Case ID:** #${result.caseId}`,
+                        `🚫 **Заблоковано** ${user.tag}`,
+                        `**Причина:** ${reason}\n**ID справи:** #${result.caseId}`,
                     ),
                 ],
             });
         } catch (error) {
-            logger.error('Ban command error:', error);
+            logger.error('Помилка команди ban:', error);
             await handleInteractionError(interaction, error, { subtype: 'ban_failed' });
         }
     },

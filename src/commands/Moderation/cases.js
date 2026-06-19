@@ -6,27 +6,27 @@ import { InteractionHelper } from '../../utils/interactionHelper.js';
 export default {
     data: new SlashCommandBuilder()
         .setName('cases')
-        .setDescription('View moderation cases and audit logs')
+        .setDescription('Переглянути справи та журнали модерації')
         .setDefaultMemberPermissions(PermissionFlagsBits.ViewAuditLog)
         .setDMPermission(false)
         .addStringOption(option =>
             option.setName('filter')
-                .setDescription('Filter cases by type or user')
+                .setDescription('Фільтрувати справи за типом або користувачем')
                 .addChoices(
-                    { name: 'All Cases', value: 'all' },
-                    { name: 'Bans', value: 'Member Banned' },
-                    { name: 'Kicks', value: 'Member Kicked' },
-                    { name: 'Timeouts', value: 'Member Timed Out' },
-                    { name: 'Warnings', value: 'User Warned' }
+                    { name: 'Усі справи', value: 'all' },
+                    { name: 'Блокування', value: 'Member Banned' },
+                    { name: 'Виключення', value: 'Member Kicked' },
+                    { name: 'Тайм-аути', value: 'Member Timed Out' },
+                    { name: 'Попередження', value: 'User Warned' }
                 )
         )
         .addUserOption(option =>
             option.setName('user')
-                .setDescription('Filter cases by specific user')
+                .setDescription('Фільтрувати справи за конкретним користувачем')
         )
         .addIntegerOption(option =>
             option.setName('limit')
-                .setDescription('Number of cases to show (default: 10)')
+                .setDescription('Кількість справ для показу (за замовчуванням: 10)')
                 .setMinValue(1)
                 .setMaxValue(50)
         ),
@@ -34,7 +34,7 @@ export default {
     async execute(interaction, config, client) {
         const deferSuccess = await InteractionHelper.safeDefer(interaction);
         if (!deferSuccess) {
-            logger.warn(`Cases interaction defer failed`, {
+            logger.warn(`Помилка відкладення взаємодії cases`, {
                 userId: interaction.user.id,
                 guildId: interaction.guildId,
                 commandName: 'cases'
@@ -57,8 +57,8 @@ export default {
 
             if (cases.length === 0) {
                 throw new Error(targetUser 
-                    ? `No moderation cases found for ${targetUser.tag}`
-                    : `No ${filterType === 'all' ? '' : filterType} cases found in this server.`
+                    ? `Справ модерації для ${targetUser.tag} не знайдено`
+                    : `Справ ${filterType === 'all' ? '' : filterType} на цьому сервері не знайдено.`
                 );
             }
 
@@ -72,23 +72,23 @@ export default {
                 const pageCases = cases.slice(startIndex, endIndex);
 
                 const embed = createEmbed({
-                    title: 'Moderation Cases',
-                    description: `Showing moderation cases for **${interaction.guild.name}**\n\n**Page ${page} of ${totalPages}**`
+                    title: '📋 Справи модерації',
+                    description: `Справи модерації для **${interaction.guild.name}**\n\n**Сторінка ${page} з ${totalPages}**`
                 });
 
                 pageCases.forEach(case_ => {
-                    const date = new Date(case_.createdAt).toLocaleDateString();
-                    const time = new Date(case_.createdAt).toLocaleTimeString();
+                    const date = new Date(case_.createdAt).toLocaleDateString('uk-UA');
+                    const time = new Date(case_.createdAt).toLocaleTimeString('uk-UA');
                     
                     embed.addFields({
-                        name: `Case #${case_.caseId} - ${case_.action}`,
-                        value: `**Target:** ${case_.target}\n**Moderator:** ${case_.executor}\n**Date:** ${date} at ${time}\n**Reason:** ${case_.reason || 'No reason provided'}`,
+                        name: `Справа #${case_.caseId} — ${case_.action}`,
+                        value: `**Ціль:** ${case_.target}\n**Модератор:** ${case_.executor}\n**Дата:** ${date} о ${time}\n**Причина:** ${case_.reason || 'Причина не вказана'}`,
                         inline: false
                     });
                 });
 
                 embed.setFooter({
-                    text: `Total cases: ${cases.length} | Filter: ${filterType}${targetUser ?` | User: ${targetUser.tag}`: ''}`
+                    text: `Всього справ: ${cases.length} | Фільтр: ${filterType}${targetUser ? ` | Користувач: ${targetUser.tag}` : ''}`
                 });
 
                 return embed;
@@ -99,19 +99,19 @@ export default {
                 
                 const prevButton = new ButtonBuilder()
                     .setCustomId('prev_page')
-                    .setLabel('⬅️ Previous')
+                    .setLabel('⬅️ Назад')
                     .setStyle(ButtonStyle.Secondary)
                     .setDisabled(page === 1);
 
                 const pageInfoButton = new ButtonBuilder()
                     .setCustomId('page_info')
-                    .setLabel(`Page ${page}/${totalPages}`)
+                    .setLabel(`Сторінка ${page}/${totalPages}`)
                     .setStyle(ButtonStyle.Primary)
                     .setDisabled(true);
 
                 const nextButton = new ButtonBuilder()
                     .setCustomId('next_page')
-                    .setLabel('Next ➡️')
+                    .setLabel('Вперед ➡️')
                     .setStyle(ButtonStyle.Secondary)
                     .setDisabled(page === totalPages);
 
@@ -134,7 +134,7 @@ time: 120000
 
                 if (buttonInteraction.user.id !== interaction.user.id) {
                     await buttonInteraction.followUp({
-                        content: 'You cannot use these buttons. Run `/cases` to get your own case view.',
+                        content: 'Ви не можете використовувати ці кнопки. Виконайте `/cases`, щоб отримати власне відображення справ.',
                         flags: MessageFlags.Ephemeral
                     });
                     return;
@@ -167,8 +167,8 @@ time: 120000
             });
 
         } catch (error) {
-            logger.error('Error in cases command:', error);
-            return await replyUserError(interaction, { type: ErrorTypes.UNKNOWN, message: 'An error occurred while retrieving moderation cases. Please try again later.' });
+            logger.error('Помилка команди cases:', error);
+            return await replyUserError(interaction, { type: ErrorTypes.UNKNOWN, message: 'Під час отримання справ модерації виникла помилка. Спробуйте ще раз.' });
         }
     }
 };

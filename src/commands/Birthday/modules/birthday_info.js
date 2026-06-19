@@ -18,10 +18,10 @@ export default {
             if (!birthdayData) {
                 const embed = new EmbedBuilder()
                     .setColor(0xFF0000)
-                    .setTitle('No Birthday Found')
+                    .setTitle('День народження не знайдено')
                     .setDescription(targetUser.id === interaction.user.id 
-                        ? "You haven't set your birthday yet. Use `/birthday set` to add it!"
-                        : `${targetUser.username} hasn't set their birthday yet.`);
+                        ? "Ви ще не вказали свій день народження. Використайте `/birthday set`, щоб додати його!"
+                        : `${targetUser.username} ще не вказав(ла) свій день народження.`);
                 return await InteractionHelper.safeEditReply(interaction, {
                     embeds: [embed]
                 });
@@ -29,21 +29,21 @@ export default {
             
             const embed = new EmbedBuilder()
                 .setColor(0x00FF00)
-                .setTitle('Birthday Information')
-                .setDescription(`**Date:** ${birthdayData.monthName} ${birthdayData.day}\n**User:** ${targetUser.toString()}`);
+                .setTitle('🎂 Інформація про день народження')
+                .setDescription(`**Дата:** ${birthdayData.monthName} ${birthdayData.day}\n**Користувач:** ${targetUser.toString()}`);
             
             await InteractionHelper.safeEditReply(interaction, {
                 embeds: [embed]
             });
             
-            logger.info('Birthday info retrieved successfully', {
+            logger.info('Інформацію про день народження успішно отримано', {
                 userId: interaction.user.id,
                 targetUserId: targetUser.id,
                 guildId,
                 commandName: 'birthday_info'
             });
         } catch (error) {
-            logger.error("Birthday info command execution failed", {
+            logger.error("Помилка виконання birthday info", {
                 error: error.message,
                 stack: error.stack,
                 userId: interaction.user.id,
